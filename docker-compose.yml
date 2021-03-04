@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  web:
+    image: files-local
+    build: .
+    entrypoint: ["./docker/entrypoint.sh", "start-local"]
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:${PORT}/healthcheck || exit 1" ]
+      interval: "30s"
+      retries: "3"
+      start_period: "60s"
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - 3030:${PORT}
+    networks:
+      standardnotes_proxy:
+        aliases:
+          - files
+      files: {}
+    volumes:
+      - .:/var/www
+
+  worker:
+    image: files-local
+    entrypoint: ["./docker/entrypoint.sh", "start-worker"]
+    env_file: .env
+    restart: unless-stopped
+    networks:
+      standardnotes_proxy:
+        aliases:
+          - files_worker
+      files: {}
+    volumes:
+      - .:/var/www
+
+networks:
+  files:
+    name: files
+  standardnotes_proxy:
+    name: standardnotes
