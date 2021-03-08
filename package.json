@@ -56,9 +56,6 @@
       "/node_modules/",
       "/Bootstrap/",
       "HealthCheckController"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/test-setup.ts"
     ]
   }
 }
