@@ -10,8 +10,6 @@ import * as bodyParser from 'body-parser'
 import * as prettyjson from 'prettyjson'
 import * as expressWinston from 'express-winston'
 import * as winston from 'winston'
-import * as dayjs from 'dayjs'
-import * as utc from 'dayjs/plugin/utc'
 
 import { InversifyExpressServer, getRouteInfo } from 'inversify-express-utils'
 
@@ -21,8 +19,6 @@ import { Env } from '../src/Bootstrap/Env'
 
 const container = new ContainerConfigLoader
 void container.load().then(container => {
-  dayjs.extend(utc)
-
   const server = new InversifyExpressServer(container)
 
   server.setConfig((app) => {
@@ -58,9 +54,9 @@ void container.load().then(container => {
 
     app.use(expressWinston.logger({
       transports: [
-          new winston.transports.Console({
-              format: winston.format.json(),
-          }),
+        new winston.transports.Console({
+          format: winston.format.json(),
+        }),
       ],
       ignoreRoute: function (req, _res) { return ['/healthcheck', '/favicon.ico'].indexOf(req.path.replace(/\/$/, '')) >= 0 },
     }))
