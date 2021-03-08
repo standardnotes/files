@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-winston": "^4.0.5",
@@ -32,7 +31,6 @@
     "inversify-express-utils": "^6.3.2",
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",
-    "superagent": "^6.1.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
@@ -41,7 +39,6 @@
     "@types/express": "^4.17.11",
     "@types/jest": "^26.0.20",
     "@types/prettyjson": "^0.0.29",
-    "@types/superagent": "^4.1.10",
     "dd-trace": "^0.30.5",
     "eslint": "^7.18.0",
     "jest": "^26.6.3",
