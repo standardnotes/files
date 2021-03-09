@@ -20,7 +20,7 @@ export class ContainerConfigLoader {
     return container
   }
 
-  createLogger({ env }: {env: Env}): winston.Logger {
+  createLogger({ env }: { env: Env }): winston.Logger {
     return winston.createLogger({
       level: env.get('LOG_LEVEL') || 'info',
       format: winston.format.combine(
