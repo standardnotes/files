@@ -1,6 +1,6 @@
 # Standard Notes Files Service
 
-# Run locally with docker-compose
+## Run locally with docker-compose
 
 ```
 cp .env.sample .env

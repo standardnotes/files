@@ -1,16 +1,11 @@
 import 'reflect-metadata'
+import { ValetKeyGeneratorTest } from '../../Infra/test/ValetKeyGeneratorTest'
 
 import { CreateValetKey } from './CreateValetKey'
 
 describe('CreateValetKey', () => {
-  const createUseCase = () => new CreateValetKey()
-
-  beforeEach(() => {
-    void 'todo'
-  })
-
   it('should not create a valet key if an operation is not permitted', async () => {
-    const useCase = createUseCase()
+    const useCase = new CreateValetKey(new ValetKeyGeneratorTest())
 
     const response = await useCase.execute({
       user: {
