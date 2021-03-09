@@ -14,6 +14,9 @@ export class ContainerConfigLoader {
     const logger = this.createLogger({ env })
     container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
+    // env vars
+    container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))
+
     return container
   }
 
