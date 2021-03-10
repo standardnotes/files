@@ -19,15 +19,14 @@ export class CreateValetKey implements UseCaseInterface {
    */
   async execute(dto: CreateValetKeyDto): Promise<CreateValetKeyResponse> {
     const { requestedOperations, user } = dto
-    const { permissions, roles, uuid } = user
+    const { permissions, uuid } = user
 
     const permittedOperations = []
     const forbiddenOperations = []
 
     for (const operation of requestedOperations) {
       if (isOperationPermitted({
-        operation, 
-        roles,
+        operation,
         permissions,
       })) permittedOperations.push(operation)
       else forbiddenOperations.push(operation)

@@ -3,6 +3,9 @@ const TYPES = {
   HTTPClient: Symbol.for('HTTPClient'),
   ValetKeyGenerator: Symbol.for('ValetKeyGenerator'),
 
+  // use cases
+  CreateValetKey: Symbol.for('CreateValetKey'),
+
   // env vars
   S3_BUCKET_NAME: Symbol.for('S3_BUCKET_NAME')
 }

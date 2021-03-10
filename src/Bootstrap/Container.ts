@@ -5,6 +5,7 @@ import { Env } from './Env'
 import TYPES from './Types'
 import { ValetKeyGeneratorS3 } from '../Infra/AWS/ValetKeyGeneratorS3'
 import { ValetKeyGenerator } from '../Domain/ValetKey/ValetKeyGenerator'
+import { CreateValetKey } from '../Domain/UseCase/CreateValetKey'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -18,6 +19,9 @@ export class ContainerConfigLoader {
 
     container.bind<ValetKeyGenerator>(TYPES.ValetKeyGenerator)
       .toConstantValue(new ValetKeyGeneratorS3())
+
+    // use cases
+    container.bind<CreateValetKey>(TYPES.CreateValetKey).to(CreateValetKey)
 
     // env vars
     container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))

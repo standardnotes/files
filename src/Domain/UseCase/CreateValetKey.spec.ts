@@ -11,7 +11,6 @@ describe('CreateValetKey', () => {
       user: {
         uuid: '123',
         permissions: [],
-        roles: [],
       },
       requestedOperations: [{ 
         operation: 'read', 

@@ -3,6 +3,7 @@ import 'reflect-metadata'
 import './tracer'
 
 import '../src/Controller/HealthCheckController'
+import '../src/Controller/ValetKey/ValetKeyController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'

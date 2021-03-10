@@ -6,7 +6,6 @@ describe('isOperationPermitted', () => {
   it('should return false for empty permissions', async () => {
     const result = isOperationPermitted({
       permissions: [],
-      roles: [],
       operation: { 
         operation: 'read', 
         resource: { name: 'file.txt' },
