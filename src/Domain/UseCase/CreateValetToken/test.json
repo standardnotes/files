@@ -1,0 +1,8 @@
+{
+  "user": {
+    "uuid": "123",
+    "permissions": []
+  },
+  "operation": "read",
+  "resources": [{ "name": "file.txt" }]
+}

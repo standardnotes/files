@@ -7,21 +7,21 @@ import {
   results 
 } from 'inversify-express-utils'
 import TYPES from '../../Bootstrap/Types'
-import { CreateValetKey } from '../../Domain/UseCase/CreateValetKey'
+import { CreateValetToken } from '../../Domain/UseCase/CreateValetToken/CreateValetToken'
 import { Request } from 'express'
-import { validateCreateValetKeyRequest } from './validateCreateValetKeyRequest'
+import { validateCreateValetTokenRequest } from '../../Domain/UseCase/CreateValetToken/CreateValetTokenValidation'
 
-@controller('/valetKey')
-export class ValetKeyController extends BaseHttpController {
+@controller('/valetToken')
+export class ValetTokenController extends BaseHttpController {
   constructor(
-    @inject(TYPES.CreateValetKey) private createValetKey: CreateValetKey,
+    @inject(TYPES.CreateValetKey) private createValetKey: CreateValetToken,
   ) {
     super()
   }
 
   @httpPost('/')
   public async create(request: Request): Promise<results.JsonResult> {
-    const validatedRequest = validateCreateValetKeyRequest(request)
+    const validatedRequest = validateCreateValetTokenRequest(request)
   
     if (!validatedRequest.success) {
       return this.json(validatedRequest, 400)

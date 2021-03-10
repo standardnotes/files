@@ -1,15 +1,12 @@
 import 'reflect-metadata'
-import { CreateValetKey } from '../../Domain/UseCase/CreateValetKey'
-import { ValetKeyGeneratorTest } from '../../Infra/test/ValetKeyGeneratorTest'
+import { CreateValetToken } from '../../Domain/UseCase/CreateValetToken/CreateValetToken'
 import { Request } from 'express'
 
-import { ValetKeyController } from './ValetKeyController'
+import { ValetTokenController } from './ValetTokenController'
 
 describe('ValetKeyController', () => {
-  const createController = () => new ValetKeyController(
-    new CreateValetKey(
-      new ValetKeyGeneratorTest()
-    )
+  const createController = () => new ValetTokenController(
+    new CreateValetToken()
   )
 
   describe('create', () => {

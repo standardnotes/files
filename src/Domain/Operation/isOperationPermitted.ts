@@ -1,5 +1,6 @@
-import { UserPermissions } from '../UseCase/CreateValetKeyDto'
-import { ResourceOperation } from './ResourceOperation'
+import { UserPermissions } from '../User/UserWithPermissions'
+import { Operation } from './Operation'
+import { Resource } from '../Resource/Resource'
 
 // todo: implement with tests
 /**
@@ -8,11 +9,13 @@ import { ResourceOperation } from './ResourceOperation'
 export function isOperationPermitted({
   operation, 
   permissions,
+  resources,
 }: {
-  operation: ResourceOperation, 
+  operation: Operation, 
   permissions: UserPermissions,
+  resources: Resource[],
 }): boolean {
-  void operation, permissions
+  void operation, permissions, resources
 
 
 

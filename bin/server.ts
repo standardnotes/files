@@ -3,7 +3,7 @@ import 'reflect-metadata'
 import './tracer'
 
 import '../src/Controller/HealthCheckController'
-import '../src/Controller/ValetKey/ValetKeyController'
+import '../src/Controller/ValetToken/ValetTokenController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'
@@ -27,7 +27,6 @@ void container.load().then(container => {
       extended: true,
     }))
     app.use(bodyParser.json())
-    app.use(bodyParser.urlencoded({ extended: true }))
     app.use(cors())
 
     /* eslint-disable */
