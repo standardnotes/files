@@ -5,6 +5,5 @@ export type UserWithPermissions = {
 
 export type UserPermissions = UserPermission[]
 
-export type UserPermission = {
-  name: string,
-}
+// todo: agree on what should be returned from auth
+export type UserPermission = 'read' | 'write'

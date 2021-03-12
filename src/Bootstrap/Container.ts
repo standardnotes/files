@@ -4,9 +4,19 @@ import { Container } from 'inversify'
 import { Env } from './Env'
 import TYPES from './Types'
 import { CreateValetToken } from '../Domain/UseCase/CreateValetToken/CreateValetToken'
+import { SNPureCrypto } from '@standardnotes/sncrypto-common'
+import { SNWebCrypto } from '@standardnotes/sncrypto-web'
+import { CrypterSncrypto } from '../Domain/Encryption/CrypterSncrypto'
+import dayjs = require('dayjs')
+import customParseFormat = require('dayjs/plugin/customParseFormat')
+import utc = require('dayjs/plugin/utc')
+import { CrypterInterface } from '../Domain/Encryption/CrypterInterface'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
+    dayjs.extend(customParseFormat)
+    dayjs.extend(utc)
+
     const env: Env = new Env()
     env.load()
 
@@ -18,8 +28,14 @@ export class ContainerConfigLoader {
     // use cases
     container.bind<CreateValetToken>(TYPES.CreateValetKey).to(CreateValetToken)
 
+    // services
+    container.bind<SNPureCrypto>(TYPES.SNCrypto).toConstantValue(new SNWebCrypto())
+    container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterSncrypto)
+
     // env vars
     container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))
+    container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
+    container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
 
     return container
   }

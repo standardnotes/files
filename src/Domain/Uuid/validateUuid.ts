@@ -3,7 +3,7 @@ import { Uuid } from './Uuid'
 
 /**
  * Checks if a value of type `any` (e.g. from a request) is a valid UUID.
- * todo: validate with a regex
+ * todo: validate with a regex, test
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validateUuid(uuid: any): ValidatedValue<Uuid> {

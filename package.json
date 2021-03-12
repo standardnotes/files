@@ -2,7 +2,7 @@
   "name": "files",
   "version": "1.0.0",
   "engines": {
-    "node": ">=14.0.0 <15.0.0"
+    "node": ">=15.0.0 <16.0.0"
   },
   "description": "Standard Notes Files Server",
   "main": "dist/src/index.js",
@@ -22,6 +22,8 @@
     "worker": "node dist/bin/worker.js"
   },
   "dependencies": {
+    "@standardnotes/sncrypto-common": "^1.2.10",
+    "@standardnotes/sncrypto-web": "^1.2.10",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -31,7 +33,9 @@
     "inversify-express-utils": "^6.3.2",
     "prettyjson": "^1.2.1",
     "reflect-metadata": "^0.1.13",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "jsonwebtoken": "^8.5.1",
+    "dayjs": "^1.10.4"
   },
   "devDependencies": {
     "@standardnotes/config": "^1.1.1",
@@ -39,6 +43,7 @@
     "@types/express": "^4.17.11",
     "@types/jest": "^26.0.20",
     "@types/prettyjson": "^0.0.29",
+    "@types/jsonwebtoken": "^8.5.0",
     "dd-trace": "^0.30.5",
     "eslint": "^7.18.0",
     "jest": "^26.6.3",
@@ -55,6 +60,9 @@
       "/node_modules/",
       "/Bootstrap/",
       "HealthCheckController"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/test-setup.ts"
     ]
   }
 }

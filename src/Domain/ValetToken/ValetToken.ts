@@ -1,10 +1,10 @@
+import { DateString } from '../Date/Date'
 import { Operation } from '../Operation/Operation'
 import { Resource } from '../Resource/Resource'
 import { Uuid } from '../Uuid/Uuid'
 
 
 export type ValetToken = string
-export type DateString = string
 export type ValetKeySignature = string
 
 export type ValetStructure = {

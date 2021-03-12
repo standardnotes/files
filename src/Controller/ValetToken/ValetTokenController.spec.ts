@@ -1,13 +1,13 @@
 import 'reflect-metadata'
-import { CreateValetToken } from '../../Domain/UseCase/CreateValetToken/CreateValetToken'
+// import { CreateValetToken } from '../../Domain/UseCase/CreateValetToken/CreateValetToken'
 import { Request } from 'express'
+import { ContainerConfigLoader } from '../../Bootstrap/Container'
 
 import { ValetTokenController } from './ValetTokenController'
 
-describe('ValetKeyController', () => {
-  const createController = () => new ValetTokenController(
-    new CreateValetToken()
-  )
+describe('ValetKeyController', async () => {
+  const container = await new ContainerConfigLoader().load()
+  const createController = () => container.get(ValetTokenController)
 
   describe('create', () => {
     it('should fail on bad request', async () => {
