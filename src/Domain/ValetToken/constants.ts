@@ -1,5 +1,5 @@
 // conformant to https://day.js.org/docs/en/display/format#list-of-all-available-formats
-export const dateFormat = 'YYYY-MM-DDTHH:mm:ssZ'
+export const dateFormat = 'YYYY-MM-DDTHH:mm:ss[Z]'
 // 2 hours
 export const defaultExpiresAfterSeconds = 2*60*60
 // 5 minutes

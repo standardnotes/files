@@ -66,8 +66,8 @@ ValidatedValue<UserWithPermissions> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function validateUserPermissions(permissions: any): 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+export function validateUserPermissions(permissions: any): 
 ValidatedValue<UserPermissions> {
   if (!Array.isArray(permissions)) return {
     success: false,
@@ -76,20 +76,21 @@ ValidatedValue<UserPermissions> {
 
   const validPermissions: UserPermissions = []
   for (const permission of permissions) {
-    const { name } = permission
-    if (typeof name !== 'string') return {
+    if (
+      typeof permission !== 'string' || 
+      !['read', 'write'].includes(permission)
+    ) return {
       success: false,
-      error: 'At least one user permission has missing or invalid properties.'
+      error: 'At least one user permission is invalid.'
     }
-    // todo:
-    validPermissions.push(name as UserPermission)
+    validPermissions.push(permission as UserPermission)
   }
 
   return { success: true, value: validPermissions }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function validateOperation(operation: any): 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
+export function validateOperation(operation: any): 
 ValidatedValue<Operation> {
   if (!['read', 'write'].includes(operation)) return {
     success: false,

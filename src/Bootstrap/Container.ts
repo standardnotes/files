@@ -4,13 +4,11 @@ import { Container } from 'inversify'
 import { Env } from './Env'
 import TYPES from './Types'
 import { CreateValetToken } from '../Domain/UseCase/CreateValetToken/CreateValetToken'
-import { SNPureCrypto } from '@standardnotes/sncrypto-common'
-import { SNWebCrypto } from '@standardnotes/sncrypto-web'
-import { CrypterSncrypto } from '../Domain/Encryption/CrypterSncrypto'
 import dayjs = require('dayjs')
 import customParseFormat = require('dayjs/plugin/customParseFormat')
 import utc = require('dayjs/plugin/utc')
 import { CrypterInterface } from '../Domain/Encryption/CrypterInterface'
+import { CrypterTest } from '../Domain/Encryption/test/CrypterTest'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -26,11 +24,11 @@ export class ContainerConfigLoader {
     container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
     // use cases
-    container.bind<CreateValetToken>(TYPES.CreateValetKey).to(CreateValetToken)
+    container.bind<CreateValetToken>(TYPES.CreateValetToken).to(CreateValetToken)
 
     // services
-    container.bind<SNPureCrypto>(TYPES.SNCrypto).toConstantValue(new SNWebCrypto())
-    container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterSncrypto)
+    // todo: replace CrypterTest with CrypterSncrypto
+    container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterTest)
 
     // env vars
     container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))

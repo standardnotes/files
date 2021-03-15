@@ -2,7 +2,7 @@ import dayjs = require('dayjs')
 import { ValidatedValue } from '../Validation/Validation'
 import { DateString } from './Date'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 export function validateDateString(date: any, format: string): ValidatedValue<DateString> {
   if (typeof date !== 'string') return {
     success: false,

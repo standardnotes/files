@@ -14,7 +14,7 @@ import { validateCreateValetTokenRequest } from '../../Domain/UseCase/CreateVale
 @controller('/valetToken')
 export class ValetTokenController extends BaseHttpController {
   constructor(
-    @inject(TYPES.CreateValetKey) private createValetKey: CreateValetToken,
+    @inject(TYPES.CreateValetToken) private createValetKey: CreateValetToken,
   ) {
     super()
   }

@@ -8,6 +8,7 @@ import { generateValetToken } from '../../ValetToken/generateValetToken'
 import TYPES from '../../../Bootstrap/Types'
 import { JwtSecret, ValetTokenSecret } from '../../ValetToken/ValetTokenGenerator'
 import { CrypterInterface } from '../../Encryption/CrypterInterface'
+import { createValetPayload } from '../../ValetToken/createValetPayload'
 
 @injectable()
 export class CreateValetToken implements UseCaseInterface {
@@ -21,7 +22,6 @@ export class CreateValetToken implements UseCaseInterface {
    * Given a request from the API Gateway containing auth data for a user and the requested file operations generates a valet key which can be used to perform these operations directly via the Files Service.
    */
   async execute(dto: CreateValetKeyDto): Promise<CreateValetKeyResponse> {
-    // todo: validate period in controller
     const { user, operation, resources, validityPeriod } = dto
     const { permissions, uuid } = user
 
@@ -37,11 +37,15 @@ export class CreateValetToken implements UseCaseInterface {
       },
     }
 
-    const valetToken: ValetToken = await generateValetToken({
+    const payload = createValetPayload({
       uuid, 
       permittedOperation: operation,
       permittedResources: resources,
       validityPeriod,
+    })
+
+    const valetToken: ValetToken = await generateValetToken({
+      payload,
       jwtSecret: this.jwtSecret,
       valetTokenSecret: this.valetTokenSecret,
       crypter: this.crypter,
