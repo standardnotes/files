@@ -10,6 +10,6 @@ export type CreateValetKeyDto = {
   // requested by client
   operation: Operation,
   resources: Resource[],
-  // optional validity period
+
   validityPeriod?: Partial<ValidityPeriod>,
 }

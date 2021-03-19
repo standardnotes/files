@@ -18,7 +18,3 @@ export type GenerateValetToken = ({
   valetTokenSecret: ValetTokenSecret,
   crypter: Crypter,
 }) => Promise<ValetToken>
-
-export interface ValetKeyGenerator {
-  generate: GenerateValetToken
-}

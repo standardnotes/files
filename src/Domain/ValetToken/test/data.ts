@@ -6,3 +6,6 @@ export const valetPayload: ValetPayload = {
   permittedResources: [ { name: 'file.txt' } ],
   validityPeriod: { date: '2021-03-15T18:13:48Z', expiresAfterSeconds: 7200 }
 }
+
+export const jwtSecret = '123'
+export const valetTokenSecret = '456'

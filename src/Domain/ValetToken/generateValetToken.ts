@@ -27,8 +27,6 @@ export const valetTokenToPayload = async ({
 }): Promise<ValetPayload> => {
   const jwt = await crypter.decrypt(token, valetTokenSecret)
 
-  if (jwt === null) throw Error('Could not decrypt the valet token!')
-
   const payload = verify(jwt, jwtSecret, { algorithms: ['HS256'] }) as ValetPayload
 
   return payload

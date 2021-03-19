@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-import { CrypterTest } from '../Encryption/test/CrypterTest'
+import { CrypterStub } from '../Encryption/test/CrypterStub'
 import { generateValetToken, valetTokenToPayload } from './generateValetToken'
 import { valetPayload } from './test/data'
 
@@ -10,7 +10,7 @@ const valetTokenSecret = '456'
 describe('generateValetToken', () => {
   it('should succeed on valid body', async () => {
     const output = await generateValetToken({
-      crypter: new CrypterTest(),
+      crypter: new CrypterStub(),
       jwtSecret,
       valetTokenSecret,
       payload: valetPayload,
@@ -27,7 +27,7 @@ describe('valetTokenToPayload', () => {
       token,
       jwtSecret,
       valetTokenSecret,
-      crypter: new CrypterTest(),
+      crypter: new CrypterStub(),
     })
 
     expect(output).toEqual(valetPayload)
@@ -39,7 +39,7 @@ describe('valetTokenToPayload', () => {
       token,
       jwtSecret,
       valetTokenSecret: 'BAD',
-      crypter: new CrypterTest(),
+      crypter: new CrypterStub(),
     })).rejects.toThrow()
   })
 })

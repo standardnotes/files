@@ -1,7 +1,6 @@
 const TYPES = {
   Logger: Symbol.for('Logger'),
   HTTPClient: Symbol.for('HTTPClient'),
-  ValetKeyGenerator: Symbol.for('ValetKeyGenerator'),
 
   // use cases
   CreateValetToken: Symbol.for('CreateValetToken'),

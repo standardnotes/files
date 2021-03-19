@@ -1,31 +1,23 @@
 import 'reflect-metadata'
 import { Request } from 'express'
-import { ContainerConfigLoader } from '../../Bootstrap/Container'
-
 import { ValetTokenController } from './ValetTokenController'
-import { Container } from 'inversify'
-import TYPES from '../../Bootstrap/Types'
-import { CreateValetToken } from '../../Domain/UseCase/CreateValetToken/CreateValetToken'
 import { insufficientPermissionsDto, sufficientPermissionsDto } from '../../Domain/UseCase/CreateValetToken/test/data'
+import { CreateValetTokenTest } from '../../Domain/UseCase/CreateValetToken/test/CreateValetToken'
 
 describe('ValetKeyController', () => {
-  let container: Container
-
-  const createController = () => new ValetTokenController(
-    container.get<CreateValetToken>(TYPES.CreateValetToken)
+  const makeSubject = () => new ValetTokenController(
+    CreateValetTokenTest.makeSubject()
   )
-
-  beforeAll(async () => {
-    container = await new ContainerConfigLoader().load()
-  })
 
   describe('create', () => {
     it('should fail on bad request', async () => {
       const request = {
         body: {},
       } as jest.Mocked<Request>
+
+      const subject = makeSubject()
   
-      const response = await createController().create(request)
+      const response = await subject.create(request)
       expect(response.statusCode).toEqual(400)
       expect(response.json.success).toEqual(false)
     })
@@ -35,7 +27,7 @@ describe('ValetKeyController', () => {
         body: insufficientPermissionsDto,
       } as jest.Mocked<Request>
   
-      const response = await createController().create(request)
+      const response = await makeSubject().create(request)
       expect(response.statusCode).toEqual(403)
       expect(response.json.success).toEqual(false)
     })
@@ -45,7 +37,7 @@ describe('ValetKeyController', () => {
         body: sufficientPermissionsDto,
       } as jest.Mocked<Request>
   
-      const response = await createController().create(request)
+      const response = await makeSubject().create(request)
 
       expect(response.statusCode).toEqual(200)
       expect(response.json.success).toEqual(true)

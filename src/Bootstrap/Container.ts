@@ -8,7 +8,7 @@ import dayjs = require('dayjs')
 import customParseFormat = require('dayjs/plugin/customParseFormat')
 import utc = require('dayjs/plugin/utc')
 import { CrypterInterface } from '../Domain/Encryption/CrypterInterface'
-import { CrypterTest } from '../Domain/Encryption/test/CrypterTest'
+import { CrypterNode } from '../Domain/Encryption/CrypterNode'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -27,8 +27,7 @@ export class ContainerConfigLoader {
     container.bind<CreateValetToken>(TYPES.CreateValetToken).to(CreateValetToken)
 
     // services
-    // todo: replace CrypterTest with CrypterSncrypto
-    container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterTest)
+    container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterNode)
 
     // env vars
     container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))
