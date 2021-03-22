@@ -19,9 +19,7 @@ export class CrypterNode implements CrypterInterface {
 
   /**
    * Encrypts `plaintext` with `secretKey` via AES 256 GCM.
-   * @param plaintext in utf-8
-   * @param secretKey in utf-8
-   * @param ivString defaults to random; rely on that unless doing something unusual or testing 
+   * Expects parameters in utf-8.
    */
   async encrypt(
     plaintext: string,

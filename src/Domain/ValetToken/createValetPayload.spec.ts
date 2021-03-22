@@ -1,4 +1,4 @@
-import { defaultExpiresAfterSeconds } from './constants'
+import { defaultExpiresAfterSeconds } from './ValetToken'
 import { createValetPayload } from './createValetPayload'
 import { valetPayload } from './test/data'
 

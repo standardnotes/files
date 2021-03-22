@@ -4,9 +4,9 @@ import { Request } from 'express'
 import { Operation } from '../../Operation/Operation'
 import { Resource } from '../../Resource/Resource'
 import { validateUuid } from '../../Uuid/validateUuid'
-import { UserPermission, UserPermissions, UserWithPermissions } from '../../User/UserWithPermissions'
+import { UserPermission, UserWithPermissions } from '../../User/UserWithPermissions'
 import { ValidityPeriod } from '../../ValetToken/ValetToken'
-import { dateFormat, maxExpiresAfterSeconds, minExpiresAfterSeconds } from '../../ValetToken/constants'
+import { dateFormat, maxExpiresAfterSeconds, minExpiresAfterSeconds } from '../../ValetToken/ValetToken'
 import { validateDateString } from '../../Date/validateDateString'
 
 /**
@@ -68,13 +68,13 @@ ValidatedValue<UserWithPermissions> {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
 export function validateUserPermissions(permissions: any): 
-ValidatedValue<UserPermissions> {
+ValidatedValue<UserPermission[]> {
   if (!Array.isArray(permissions)) return {
     success: false,
     error: 'User permissions must be an array.'
   }
 
-  const validPermissions: UserPermissions = []
+  const validPermissions: UserPermission[] = []
   for (const permission of permissions) {
     if (
       typeof permission !== 'string' || 

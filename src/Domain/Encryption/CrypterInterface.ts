@@ -1,9 +1,7 @@
 export type EncryptedString = string
 export interface CrypterInterface {
   /**
-   * Encrypts `plaintext` with `secretKey`.
-   * @param plaintext in utf-8
-   * @param secretKey in utf-8
+   * Expects parameters in utf-8.
    */
   encrypt(plaintext: string, secretKey: string): Promise<EncryptedString>
   /**

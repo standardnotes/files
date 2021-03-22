@@ -4,9 +4,6 @@ import { ValetPayload, ValetToken } from './ValetToken'
 export type JwtSecret = string
 export type ValetTokenSecret = string
 
-/**
- * Generates a valet key for given user `uuid` that allows them to perform the `permittedOperation` on the `permittedResources` in the data store.
- */
 export type GenerateValetToken = ({
   payload,
   jwtSecret,

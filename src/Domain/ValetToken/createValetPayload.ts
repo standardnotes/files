@@ -1,6 +1,6 @@
 import { ValetPayload, ValidityPeriod, } from './ValetToken'
 import dayjs = require('dayjs')
-import { dateFormat, defaultExpiresAfterSeconds } from './constants'
+import { dateFormat, defaultExpiresAfterSeconds } from './ValetToken'
 import { Operation } from '../Operation/Operation'
 import { Resource } from '../Resource/Resource'
 import { Uuid } from '../Uuid/Uuid'
