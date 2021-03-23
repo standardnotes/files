@@ -3,10 +3,12 @@ import { Request } from 'express'
 import { ValetTokenController } from './ValetTokenController'
 import { insufficientPermissionsDto, sufficientPermissionsDto } from '../../Domain/UseCase/CreateValetToken/test/data'
 import { CreateValetTokenTest } from '../../Domain/UseCase/CreateValetToken/test/CreateValetToken'
+import { CreateValetTokenValidatorTest } from '../../Domain/UseCase/CreateValetToken/test/CreateValetTokenValidatorTest'
 
 describe('ValetKeyController', () => {
   const makeSubject = () => new ValetTokenController(
-    CreateValetTokenTest.makeSubject()
+    CreateValetTokenTest.makeSubject(),
+    CreateValetTokenValidatorTest.makeSubject(),
   )
 
   describe('create', () => {

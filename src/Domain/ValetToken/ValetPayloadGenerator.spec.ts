@@ -1,8 +1,9 @@
-import { defaultExpiresAfterSeconds } from './ValetToken'
-import { createValetPayload } from './createValetPayload'
 import { valetPayload } from './test/data'
+import { ValetPayloadGenerator } from './ValetPayloadGenerator'
 
-describe('createValetPayload', () => {
+describe('ValetPayloadGenerator', () => {
+  const { createValetPayload } = new ValetPayloadGenerator()
+
   it('should create a valid payload for full validity period', () => {
     const output = createValetPayload({
       uuid: valetPayload.userUuid,
@@ -27,7 +28,7 @@ describe('createValetPayload', () => {
       ...valetPayload, 
       validityPeriod: {
         ...period,
-        expiresAfterSeconds: defaultExpiresAfterSeconds,
+        expiresAfterSeconds: ValetPayloadGenerator.defaultExpiresAfterSeconds,
       }
     })
   })
@@ -68,7 +69,7 @@ describe('createValetPayload', () => {
     expect(outputWithoutPeriod).toEqual(payloadWithoutPeriod)
     expect(outputPeriod).toEqual({
       date: defaultDate,
-      expiresAfterSeconds: defaultExpiresAfterSeconds,
+      expiresAfterSeconds: ValetPayloadGenerator.defaultExpiresAfterSeconds,
     })
   })
 })

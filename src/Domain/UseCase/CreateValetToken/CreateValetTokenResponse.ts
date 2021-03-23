@@ -1,15 +1,10 @@
-import { Operation } from '../../Operation/Operation'
 import { ValetToken } from '../../ValetToken/ValetToken'
+import { CreateValetTokenError } from './CreateValetTokenError'
 
-export type CreateValetKeyResponse = {
+export type CreateValetTokenResponse = {
   success: false,
-  error: ErrorResponse,
+  error: CreateValetTokenError,
 } | {
   success: true,
   valetToken: ValetToken,
-}
-
-export type ErrorResponse = {
-  message: string,
-  forbiddenOperation: Operation,
 }

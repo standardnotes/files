@@ -1,6 +1,7 @@
-import { validateUuid } from './validateUuid'
+import { UuidValidator } from './UuidValidator'
 
 describe('CreateValetTokenValidation', () => {
+  const { validateUuid } = new UuidValidator()
   it('should succeed on valid UUID', async () => {
     const uuid = '00000000-0000-0000-0000-000000000000'
     const output = validateUuid(uuid)

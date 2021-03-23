@@ -1,9 +1,10 @@
 import 'reflect-metadata'
 import { injectable } from 'inversify'
-import { CrypterInterface, EncryptedString } from './CrypterInterface'
+import { CrypterInterface } from './CrypterInterface'
 import { SnCryptoNode } from '@standardnotes/sncrypto-node'
 import { createHash, randomBytes } from 'crypto'
 import { HexString } from '@standardnotes/sncrypto-common'
+import { EncryptedString } from './EncryptedString'
 
 @injectable()
 export class CrypterNode implements CrypterInterface {

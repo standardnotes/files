@@ -1,31 +1,29 @@
 import { inject, injectable } from 'inversify'
-import { isOperationPermitted } from '../../Operation/isOperationPermitted'
+import { OperationValidator } from '../../Operation/OperationValidator'
 import { ValetToken } from '../../ValetToken/ValetToken'
 import { CreateValetKeyDto } from './CreateValetTokenDto'
-import { CreateValetKeyResponse } from './CreateValetTokenResponse'
+import { CreateValetTokenResponse } from './CreateValetTokenResponse'
 import { UseCaseInterface } from '../UseCaseInterface'
-import { generateValetToken } from '../../ValetToken/generateValetToken'
 import TYPES from '../../../Bootstrap/Types'
-import { JwtSecret, ValetTokenSecret } from '../../ValetToken/ValetTokenGenerator'
-import { CrypterInterface } from '../../Encryption/CrypterInterface'
-import { createValetPayload } from '../../ValetToken/createValetPayload'
+import { ValetTokenGenerator } from '../../ValetToken/ValetTokenGenerator'
+import { ValetPayloadGenerator } from '../../ValetToken/ValetPayloadGenerator'
 
 @injectable()
 export class CreateValetToken implements UseCaseInterface {
   constructor(
-    @inject(TYPES.JWT_SECRET) private jwtSecret: JwtSecret,
-    @inject(TYPES.VALET_TOKEN_SECRET) private valetTokenSecret: ValetTokenSecret,
-    @inject(TYPES.Crypter) private crypter: CrypterInterface,
+    @inject(TYPES.OperationValidator) private operationChecker: OperationValidator,
+    @inject(TYPES.ValetPayloadGenerator) private payloadGenerator: ValetPayloadGenerator,
+    @inject(TYPES.ValetTokenGenerator) private tokenGenerator: ValetTokenGenerator,
   ) {}
 
   /**
    * Given a request from the API Gateway containing auth data for a user and the requested file operations generates a valet key which can be used to perform these operations directly via the Files Service.
    */
-  async execute(dto: CreateValetKeyDto): Promise<CreateValetKeyResponse> {
+  async execute(dto: CreateValetKeyDto): Promise<CreateValetTokenResponse> {
     const { user, operation, resources, validityPeriod } = dto
     const { permissions, uuid } = user
 
-    if (!isOperationPermitted({
+    if (!this.operationChecker.isOperationPermitted({
       operation,
       permissions,
       resources,
@@ -37,19 +35,14 @@ export class CreateValetToken implements UseCaseInterface {
       },
     }
 
-    const payload = createValetPayload({
+    const payload = this.payloadGenerator.createValetPayload({
       uuid, 
       permittedOperation: operation,
       permittedResources: resources,
       validityPeriod,
     })
 
-    const valetToken: ValetToken = await generateValetToken({
-      payload,
-      jwtSecret: this.jwtSecret,
-      valetTokenSecret: this.valetTokenSecret,
-      crypter: this.crypter,
-    })
+    const valetToken: ValetToken = await this.tokenGenerator.generateValetToken(payload)
 
     return { success: true, valetToken }
   }

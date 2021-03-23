@@ -1,4 +1,5 @@
-export type EncryptedString = string
+import { EncryptedString } from './EncryptedString'
+
 export interface CrypterInterface {
   /**
    * Expects parameters in utf-8.

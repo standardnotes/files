@@ -9,19 +9,20 @@ import {
 import TYPES from '../../Bootstrap/Types'
 import { CreateValetToken } from '../../Domain/UseCase/CreateValetToken/CreateValetToken'
 import { Request } from 'express'
-import { validateCreateValetTokenRequest } from '../../Domain/UseCase/CreateValetToken/CreateValetTokenValidation'
+import { CreateValetTokenValidator } from '../../Domain/UseCase/CreateValetToken/CreateValetTokenValidator'
 
 @controller('/valetToken')
 export class ValetTokenController extends BaseHttpController {
   constructor(
     @inject(TYPES.CreateValetToken) private createValetKey: CreateValetToken,
+    @inject(TYPES.CreateValetTokenValidator) private validator: CreateValetTokenValidator,
   ) {
     super()
   }
 
   @httpPost('/')
   public async create(request: Request): Promise<results.JsonResult> {
-    const validatedRequest = validateCreateValetTokenRequest(request)
+    const validatedRequest = this.validator.validateRequest(request)
   
     if (!validatedRequest.success) {
       return this.json(validatedRequest, 400)

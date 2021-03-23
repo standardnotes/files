@@ -1,4 +1,4 @@
-import { ValetPayload } from '../ValetToken'
+import { ValetPayload } from '../ValetPayload'
 
 export const valetPayload: ValetPayload = {
   userUuid: '00000000-0000-0000-0000-000000000000',

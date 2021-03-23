@@ -13,6 +13,14 @@ const TYPES = {
   // other
   Crypter: Symbol.for('Crypter'),
   SNCrypto: Symbol.for('SNCrypto'),
+
+  OperationValidator: Symbol.for('OperationValidator'),
+  DateValidator: Symbol.for('DateValidator'),
+  CreateValetTokenValidator: Symbol.for('CreateValetTokenValidator'),
+  UuidValidator: Symbol.for('UuidValidator'),
+  
+  ValetPayloadGenerator: Symbol.for('ValetPayloadGenerator'),
+  ValetTokenGenerator: Symbol.for('ValetTokenGenerator'),
 }
 
 export default TYPES

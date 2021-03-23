@@ -1,8 +1,10 @@
 import 'reflect-metadata'
 
-import { isOperationPermitted } from './isOperationPermitted'
+import { OperationValidator } from './OperationValidator'
 
-describe('isOperationPermitted', () => {
+describe('OperationChecker', () => {
+  const { isOperationPermitted } = new OperationValidator()
+
   it('should return true for sufficient permissions', async () => {
     const result = isOperationPermitted({
       permissions: ['read', 'write'],

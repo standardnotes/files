@@ -1,11 +1,22 @@
 import express = require('express')
-import { validateCreateValetTokenRequest, validateOperation, validateUserPermissions } from './CreateValetTokenValidation'
+import { DateValidator } from '../../Date/DateValidator'
+import { UuidValidator } from '../../Uuid/UuidValidator'
+import { CreateValetTokenValidator } from './CreateValetTokenValidator'
 import { insufficientPermissionsDto, sufficientPermissionsDto, badPermissionsUser } from './test/data'
 
 describe('CreateValetTokenValidation', () => {
+  const { 
+    validateRequest, 
+    validateUserPermissions, 
+    validateOperation,
+  } = new CreateValetTokenValidator(
+    new DateValidator(),
+    new UuidValidator(),
+  )
+
   it('should succeed on valid body', async () => {
     const requestMock = { body: sufficientPermissionsDto } as express.Request
-    const output = validateCreateValetTokenRequest(requestMock)
+    const output = validateRequest(requestMock)
 
     expect(output.success).toEqual(true)
   })
@@ -24,7 +35,7 @@ describe('CreateValetTokenValidation', () => {
         ...sufficientPermissionsDto, 
         validityPeriod: ok 
       } } as express.Request
-      const output = validateCreateValetTokenRequest(requestMock)
+      const output = validateRequest(requestMock)
   
       expect(output.success).toEqual(true)
     })
@@ -34,7 +45,7 @@ describe('CreateValetTokenValidation', () => {
       ...insufficientPermissionsDto,
       user: badPermissionsUser,
     } } as express.Request
-    const output = validateCreateValetTokenRequest(requestMock)
+    const output = validateRequest(requestMock)
 
     expect(output.success).toEqual(false)
   })
@@ -43,7 +54,7 @@ describe('CreateValetTokenValidation', () => {
       ...sufficientPermissionsDto,
       operation: undefined,
     } } as express.Request
-    const output = validateCreateValetTokenRequest(requestMock)
+    const output = validateRequest(requestMock)
 
     expect(output.success).toEqual(false)
   })
@@ -52,7 +63,7 @@ describe('CreateValetTokenValidation', () => {
       ...sufficientPermissionsDto,
       resources: undefined,
     } } as express.Request
-    const output = validateCreateValetTokenRequest(requestMock)
+    const output = validateRequest(requestMock)
 
     expect(output.success).toEqual(false)
 
@@ -60,7 +71,7 @@ describe('CreateValetTokenValidation', () => {
       ...sufficientPermissionsDto,
       resources: [{ name: undefined }],
     } } as express.Request
-    const output2 = validateCreateValetTokenRequest(requestMock2)
+    const output2 = validateRequest(requestMock2)
 
     expect(output2.success).toEqual(false)
   })
@@ -79,7 +90,7 @@ describe('CreateValetTokenValidation', () => {
         ...sufficientPermissionsDto,
         validityPeriod: bad,
       } } as express.Request
-      const output = validateCreateValetTokenRequest(requestMock)
+      const output = validateRequest(requestMock)
   
       expect(output.success).toEqual(false)
     })
@@ -92,13 +103,13 @@ describe('CreateValetTokenValidation', () => {
         uuid: 'BAD',
       },
     } } as express.Request
-    const output = validateCreateValetTokenRequest(requestMock)
+    const output = validateRequest(requestMock)
 
     expect(output.success).toEqual(false)
   })
   it('should fail on empty body', async () => {
     const requestMock = { body: {} } as express.Request
-    const output = validateCreateValetTokenRequest(requestMock)
+    const output = validateRequest(requestMock)
 
     expect(output.success).toEqual(false)
   })
