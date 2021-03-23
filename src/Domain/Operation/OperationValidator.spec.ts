@@ -2,7 +2,7 @@ import 'reflect-metadata'
 
 import { OperationValidator } from './OperationValidator'
 
-describe('OperationChecker', () => {
+describe('OperationValidator', () => {
   const { isOperationPermitted } = new OperationValidator()
 
   it('should return true for sufficient permissions', async () => {

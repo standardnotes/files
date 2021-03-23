@@ -13,16 +13,16 @@ describe('ValetTokenGenerator', () => {
     )
   }
 
-  it('generateValetToken should succeed on valid body', async () => {
-    const output = await makeSubject().generateValetToken(valetPayload)
+  it('generateValetToken should succeed on valid payload', async () => {
+    const output = await makeSubject().fromPayload(valetPayload)
 
     expect(output.endsWith(`:${valetTokenSecret}`)).toEqual(true)
   })
 
   describe('valetTokenToPayload', () => {
-    it('should succeed on valid body', async () => {
+    it('should succeed on valid token', async () => {
       const token = `eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyVXVpZCI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsInBlcm1pdHRlZE9wZXJhdGlvbiI6InJlYWQiLCJwZXJtaXR0ZWRSZXNvdXJjZXMiOlt7Im5hbWUiOiJmaWxlLnR4dCJ9XSwidmFsaWRpdHlQZXJpb2QiOnsiZGF0ZSI6IjIwMjEtMDMtMTVUMTg6MTM6NDhaIiwiZXhwaXJlc0FmdGVyU2Vjb25kcyI6NzIwMH19.FCirQ803aPoImzl1FdJFGgNjZxhPYEBAGPmKd6h74d4:${valetTokenSecret}`
-      const output = await makeSubject().valetTokenToPayload(token)
+      const output = await makeSubject().toPayload(token)
   
       expect(output).toEqual(valetPayload)
     })
@@ -30,7 +30,7 @@ describe('ValetTokenGenerator', () => {
       const token = `token:${valetTokenSecret}`
   
       await expect(
-        makeSubject({ valetSecret: 'BAD' }).valetTokenToPayload(token)
+        makeSubject({ valetSecret: 'BAD' }).toPayload(token)
       ).rejects.toThrow()
     })
   })

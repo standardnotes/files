@@ -14,13 +14,13 @@ export class ValetTokenGenerator {
     @inject(TYPES.VALET_TOKEN_SECRET) private valetTokenSecret: string,
   ) {}
 
-  async generateValetToken(payload: ValetPayload): Promise<ValetToken> {
+  async fromPayload(payload: ValetPayload): Promise<ValetToken> {
     const jwt = sign(JSON.stringify(payload), this.jwtSecret, { algorithm: 'HS256' })
   
     return this.crypter.encrypt(jwt, this.valetTokenSecret)
   }
 
-  async valetTokenToPayload(token: ValetToken): Promise<ValetPayload> {
+  async toPayload(token: ValetToken): Promise<ValetPayload> {
     const jwt = await this.crypter.decrypt(token, this.valetTokenSecret)
   
     const payload = verify(jwt, this.jwtSecret, { algorithms: ['HS256'] }) as ValetPayload

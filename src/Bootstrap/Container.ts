@@ -35,19 +35,19 @@ export class ContainerConfigLoader {
     // services
     container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterNode)
 
-    // env vars
-    container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))
-    container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
-    container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
+    container.bind<ValetPayloadGenerator>(TYPES.ValetPayloadGenerator).to(ValetPayloadGenerator)
+    container.bind<ValetTokenGenerator>(TYPES.ValetTokenGenerator).to(ValetTokenGenerator)
 
-    // other
+    // validators
     container.bind<OperationValidator>(TYPES.OperationValidator).to(OperationValidator)
     container.bind<DateValidator>(TYPES.DateValidator).to(DateValidator)
     container.bind<UuidValidator>(TYPES.UuidValidator).to(UuidValidator)
     container.bind<CreateValetTokenValidator>(TYPES.CreateValetTokenValidator).to(CreateValetTokenValidator)
 
-    container.bind<ValetPayloadGenerator>(TYPES.ValetPayloadGenerator).to(ValetPayloadGenerator)
-    container.bind<ValetTokenGenerator>(TYPES.ValetTokenGenerator).to(ValetTokenGenerator)
+    // env vars
+    container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))
+    container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
+    container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
 
     return container
   }

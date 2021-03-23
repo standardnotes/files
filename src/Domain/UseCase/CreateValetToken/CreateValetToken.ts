@@ -11,7 +11,7 @@ import { ValetPayloadGenerator } from '../../ValetToken/ValetPayloadGenerator'
 @injectable()
 export class CreateValetToken implements UseCaseInterface {
   constructor(
-    @inject(TYPES.OperationValidator) private operationChecker: OperationValidator,
+    @inject(TYPES.OperationValidator) private operationValidator: OperationValidator,
     @inject(TYPES.ValetPayloadGenerator) private payloadGenerator: ValetPayloadGenerator,
     @inject(TYPES.ValetTokenGenerator) private tokenGenerator: ValetTokenGenerator,
   ) {}
@@ -23,7 +23,7 @@ export class CreateValetToken implements UseCaseInterface {
     const { user, operation, resources, validityPeriod } = dto
     const { permissions, uuid } = user
 
-    if (!this.operationChecker.isOperationPermitted({
+    if (!this.operationValidator.isOperationPermitted({
       operation,
       permissions,
       resources,
@@ -42,7 +42,7 @@ export class CreateValetToken implements UseCaseInterface {
       validityPeriod,
     })
 
-    const valetToken: ValetToken = await this.tokenGenerator.generateValetToken(payload)
+    const valetToken: ValetToken = await this.tokenGenerator.fromPayload(payload)
 
     return { success: true, valetToken }
   }
