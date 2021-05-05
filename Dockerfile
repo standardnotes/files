@@ -6,6 +6,8 @@ ARG GID=1001
 RUN addgroup -S files -g $GID && adduser -D -S files -G files -u $UID
 
 RUN apk add --update --no-cache \
+    alpine-sdk \
+    python \
     curl
 
 WORKDIR /var/www
