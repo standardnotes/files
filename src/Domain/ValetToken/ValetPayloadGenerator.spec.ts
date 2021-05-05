@@ -25,11 +25,11 @@ describe('ValetPayloadGenerator', () => {
     })
 
     expect(output).toEqual({
-      ...valetPayload, 
+      ...valetPayload,
       validityPeriod: {
         ...period,
         expiresAfterSeconds: ValetPayloadGenerator.defaultExpiresAfterSeconds,
-      }
+      },
     })
   })
   it('should create a valid payload for validity period without date', () => {

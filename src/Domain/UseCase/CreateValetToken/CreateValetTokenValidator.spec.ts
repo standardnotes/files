@@ -5,9 +5,9 @@ import { CreateValetTokenValidator } from './CreateValetTokenValidator'
 import { insufficientPermissionsDto, sufficientPermissionsDto, badPermissionsUser } from './test/data'
 
 describe('CreateValetTokenValidation', () => {
-  const { 
-    validateRequest, 
-    validateUserPermissions, 
+  const {
+    validateRequest,
+    validateUserPermissions,
     validateOperation,
   } = new CreateValetTokenValidator(
     new DateValidator(),
@@ -24,7 +24,7 @@ describe('CreateValetTokenValidation', () => {
     const oks = [
       {
         date: '2021-03-15T17:11:00Z',
-        expiresAfterSeconds: 3000
+        expiresAfterSeconds: 3000,
       },
       { expiresAfterSeconds: 3000 },
       { date: '2021-03-15T17:11:00Z' },
@@ -32,11 +32,11 @@ describe('CreateValetTokenValidation', () => {
 
     oks.forEach(ok => {
       const requestMock = { body: {
-        ...sufficientPermissionsDto, 
-        validityPeriod: ok 
+        ...sufficientPermissionsDto,
+        validityPeriod: ok,
       } } as express.Request
       const output = validateRequest(requestMock)
-  
+
       expect(output.success).toEqual(true)
     })
   })
@@ -91,7 +91,7 @@ describe('CreateValetTokenValidation', () => {
         validityPeriod: bad,
       } } as express.Request
       const output = validateRequest(requestMock)
-  
+
       expect(output.success).toEqual(false)
     })
   })

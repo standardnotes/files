@@ -27,16 +27,18 @@ export class CreateValetToken implements UseCaseInterface {
       operation,
       permissions,
       resources,
-    })) return {
-      success: false,
-      error: {
-        message: `User ${uuid} is not authorized to perform the requested operation.`,
-        forbiddenOperation: operation,
-      },
+    })) {
+      return {
+        success: false,
+        error: {
+          message: `User ${uuid} is not authorized to perform the requested operation.`,
+          forbiddenOperation: operation,
+        },
+      }
     }
 
     const payload = this.payloadGenerator.createValetPayload({
-      uuid, 
+      uuid,
       permittedOperation: operation,
       permittedResources: resources,
       validityPeriod,

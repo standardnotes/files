@@ -14,7 +14,7 @@ describe('CrypterNode', () => {
 
     const unencrypted = 'hello world 🌍'
     const encrypted = await crypto.encrypt(unencrypted, key)
-    const decrypted = await crypto.decrypt(encrypted, key) 
+    const decrypted = await crypto.decrypt(encrypted, key)
     expect(decrypted).toEqual(unencrypted)
   })
 })
@@ -25,8 +25,10 @@ function makeHexIv(ivString: string): HexString {
   const iv32 = createHash('sha256').update(ivString).digest()
   const iv16 = Buffer.allocUnsafe(ivBytes)
   const bytesCopied = iv32.copy(iv16)
-  if (bytesCopied !== ivBytes) throw Error(
-    `IV allocation failed! Expected ${ivBytes}, but copied ${bytesCopied}.`
-  )
+  if (bytesCopied !== ivBytes) {
+    throw Error(
+      `IV allocation failed! Expected ${ivBytes}, but copied ${bytesCopied}.`
+    )
+  }
   return iv16.toString('hex')
 }

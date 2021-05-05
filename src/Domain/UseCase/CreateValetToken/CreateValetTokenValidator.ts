@@ -25,22 +25,30 @@ export class CreateValetTokenValidator {
   /**
    * Assuming `request` contains a JS object in the `body`, parsed as JSON.
    */
-  validateRequest = (request: Request): 
+  validateRequest = (request: Request):
   ValidatedValue<CreateValetKeyDto> => {
     const { body } = request
     const { user, operation, resources, validityPeriod } = body
 
     const validatedUser = this.validateUser(user)
-    if (!validatedUser.success) return validatedUser
+    if (!validatedUser.success) {
+      return validatedUser
+    }
 
     const validatedOperation = this.validateOperation(operation)
-    if (!validatedOperation.success) return validatedOperation
+    if (!validatedOperation.success) {
+      return validatedOperation
+    }
 
     const validatedResources = this.validateResources(resources)
-    if (!validatedResources.success) return validatedResources
+    if (!validatedResources.success) {
+      return validatedResources
+    }
 
     const validatedPeriod = this.validatePeriod(validityPeriod)
-    if (!validatedPeriod.success) return validatedPeriod
+    if (!validatedPeriod.success) {
+      return validatedPeriod
+    }
 
     return {
       success: true,
@@ -56,17 +64,23 @@ export class CreateValetTokenValidator {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private validateUser = (user: any):
   ValidatedValue<UserWithPermissions> => {
-    if (!user) return {
-      success: false,
-      error: 'User is missing or invalid.'
+    if (!user) {
+      return {
+        success: false,
+        error: 'User is missing or invalid.',
+      }
     }
     const { uuid, permissions } = user
 
     const validatedUuid = this.uuidValidator.validateUuid(uuid)
-    if (!validatedUuid.success) return validatedUuid
+    if (!validatedUuid.success) {
+      return validatedUuid
+    }
 
     const validatedPermissions = this.validateUserPermissions(permissions)
-    if (!validatedPermissions.success) return validatedPermissions
+    if (!validatedPermissions.success) {
+      return validatedPermissions
+    }
 
     const validUuid = uuid
 
@@ -75,26 +89,30 @@ export class CreateValetTokenValidator {
       value: {
         uuid: validUuid,
         permissions: validatedPermissions.value,
-      }
+      },
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
-  validateUserPermissions = (permissions: any): 
+  validateUserPermissions = (permissions: any):
   ValidatedValue<UserPermission[]> => {
-    if (!Array.isArray(permissions)) return {
-      success: false,
-      error: 'User permissions must be an array.'
+    if (!Array.isArray(permissions)) {
+      return {
+        success: false,
+        error: 'User permissions must be an array.',
+      }
     }
 
     const validPermissions: UserPermission[] = []
     for (const permission of permissions) {
       if (
-        typeof permission !== 'string' || 
+        typeof permission !== 'string' ||
         !['read', 'write'].includes(permission)
-      ) return {
-        success: false,
-        error: 'At least one user permission is invalid.'
+      ) {
+        return {
+          success: false,
+          error: 'At least one user permission is invalid.',
+        }
       }
       validPermissions.push(permission as UserPermission)
     }
@@ -103,29 +121,35 @@ export class CreateValetTokenValidator {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
-  validateOperation = (operation: any): 
+  validateOperation = (operation: any):
   ValidatedValue<Operation> => {
-    if (!['read', 'write'].includes(operation)) return {
-      success: false,
-      error: 'Operation is missing or invalid.'
+    if (!['read', 'write'].includes(operation)) {
+      return {
+        success: false,
+        error: 'Operation is missing or invalid.',
+      }
     }
 
     return { success: true, value: operation }
   }
 
-  private validateResources = (resources: unknown): 
+  private validateResources = (resources: unknown):
   ValidatedValue<Resource[]> => {
-    if (!Array.isArray(resources)) return {
-      success: false,
-      error: 'Resources are missing or invalid.'
+    if (!Array.isArray(resources)) {
+      return {
+        success: false,
+        error: 'Resources are missing or invalid.',
+      }
     }
 
     const validResources = []
     for (const resource of resources) {
       const { name } = resource
-      if (typeof name !== 'string') return {
-        success: false,
-        error: 'At least one resource name is missing or invalid.'
+      if (typeof name !== 'string') {
+        return {
+          success: false,
+          error: 'At least one resource name is missing or invalid.',
+        }
       }
       validResources.push({ name })
     }
@@ -134,9 +158,11 @@ export class CreateValetTokenValidator {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private validatePeriod = (period: any): 
+  private validatePeriod = (period: any):
   ValidatedValue<Partial<ValidityPeriod>> => {
-    if (period === undefined) return { success: true, value: period }
+    if (period === undefined) {
+      return { success: true, value: period }
+    }
 
     const { date, expiresAfterSeconds } = period
 
@@ -144,16 +170,20 @@ export class CreateValetTokenValidator {
 
     if (date !== undefined) {
       const validatedDate = this.dateValidator.validateString(
-        date, 
+        date,
         ValetPayloadGenerator.dateFormat,
       )
-      if (!validatedDate.success) return validatedDate
+      if (!validatedDate.success) {
+        return validatedDate
+      }
 
       validPeriod.date = validatedDate.value
     }
     if (expiresAfterSeconds !== undefined) {
       const validatedExpires = this.validateExpiresAfterSeconds(expiresAfterSeconds)
-      if (!validatedExpires.success) return validatedExpires
+      if (!validatedExpires.success) {
+        return validatedExpires
+      }
 
       validPeriod.expiresAfterSeconds = validatedExpires.value
     }
@@ -162,14 +192,18 @@ export class CreateValetTokenValidator {
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private validateExpiresAfterSeconds = (expires: any): ValidatedValue<number> => {
-    if (typeof expires !== 'number') return {
-      success: false,
-      error: 'expiresAfterSeconds is missing or invalid.'
+    if (typeof expires !== 'number') {
+      return {
+        success: false,
+        error: 'expiresAfterSeconds is missing or invalid.',
+      }
     }
 
-    if (expires > maxExpiresAfterSeconds || expires < minExpiresAfterSeconds) return {
-      success: false,
-      error: `expiresAfterSeconds must be in the inclusive range ${minExpiresAfterSeconds}..${maxExpiresAfterSeconds}.`
+    if (expires > maxExpiresAfterSeconds || expires < minExpiresAfterSeconds) {
+      return {
+        success: false,
+        error: `expiresAfterSeconds must be in the inclusive range ${minExpiresAfterSeconds}..${maxExpiresAfterSeconds}.`,
+      }
     }
 
     return {

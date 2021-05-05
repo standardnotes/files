@@ -11,7 +11,9 @@ export class CrypterStub implements CrypterInterface {
   async decrypt(value: string, secret: string): Promise<string> {
     const [v, s] = value.split(':')
 
-    if (s !== secret) throw Error(`Could not decrypt ${value}. Wrong secret: ${secret}!`)
+    if (s !== secret) {
+      throw Error(`Could not decrypt ${value}. Wrong secret: ${secret}!`)
+    }
 
     return v
   }

@@ -13,7 +13,7 @@ export const badPermissionsUser = {
 
 const sufficientPermissionsUser: UserWithPermissions = {
   uuid: '00000000-0000-0000-0000-000000000000',
-  permissions: ['read']
+  permissions: ['read'],
 }
 
 export const insufficientPermissionsDto: CreateValetKeyDto = {
@@ -25,5 +25,5 @@ export const insufficientPermissionsDto: CreateValetKeyDto = {
 export const sufficientPermissionsDto: CreateValetKeyDto = {
   user: sufficientPermissionsUser,
   operation: 'read',
-  resources: [{ 'name': 'file.txt' }]
+  resources: [{ 'name': 'file.txt' }],
 }
