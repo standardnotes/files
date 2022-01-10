@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 import * as AWS from 'aws-sdk'
+import { PassThrough } from 'stream'
 import {
   BaseHttpController,
   controller,
@@ -23,15 +24,25 @@ export class UploadController extends BaseHttpController {
   }
 
   @httpPost('/')
-  public async upload(request: Request, _response: Response): Promise<void> {
-    request.pipe(request.busboy)
+  public async upload(request: Request, response: Response): Promise<void> {
+    this.logger.info('Starting file upload')
 
     request.busboy.on('file', (_name: string, stream: Readable, info: FileInfo) => {
-      this.s3Client.upload({ Bucket: this.s3BuckeName, Key: info.filename, Body: stream }, (error: Error, data: AWS.S3.ManagedUpload.SendData) => {
+      const passThroughStream = new PassThrough()
+
+      this.s3Client.upload({ Bucket: this.s3BuckeName, Key: info.filename, Body: passThroughStream }, (error: Error, data: AWS.S3.ManagedUpload.SendData) => {
         this.logger.info(error)
         this.logger.info(data)
         this.logger.info(`Upload of '${info.filename}' finished`)
       })
+
+      stream.pipe(passThroughStream)
     })
+
+    request.busboy.on('finish', function () {
+      response.status(200).json({ 'message': 'File uploaded successfully.' })
+    })
+
+    request.pipe(request.busboy)
   }
 }
