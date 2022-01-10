@@ -6,7 +6,7 @@ import {
   controller,
   httpPost,
 } from 'inversify-express-utils'
-import { Request, Response } from 'express'
+import { Request } from 'express'
 import { Readable } from 'stream'
 import { FileInfo } from 'busboy'
 import { inject } from 'inversify'
@@ -24,25 +24,27 @@ export class UploadController extends BaseHttpController {
   }
 
   @httpPost('/')
-  public async upload(request: Request, response: Response): Promise<void> {
+  public async upload(request: Request): Promise<void> {
     this.logger.info('Starting file upload')
 
-    request.busboy.on('file', (_name: string, stream: Readable, info: FileInfo) => {
-      const passThroughStream = new PassThrough()
-
-      this.s3Client.upload({ Bucket: this.s3BuckeName, Key: info.filename, Body: passThroughStream }, (error: Error, data: AWS.S3.ManagedUpload.SendData) => {
-        this.logger.info(error)
-        this.logger.info(data)
-        this.logger.info(`Upload of '${info.filename}' finished`)
-      })
-
-      stream.pipe(passThroughStream)
-    })
-
-    request.busboy.on('finish', function () {
-      response.status(200).json({ 'message': 'File uploaded successfully.' })
-    })
-
     request.pipe(request.busboy)
+
+    request.busboy.on('file', (name: string, stream: Readable, info: FileInfo) => {
+      this.logger.info(`File handling started ${name}`)
+      stream.pipe(this.uploadFromStream(info.filename))
+    })
+  }
+
+  private uploadFromStream(fileName: string) {
+    this.logger.info(`Uploading from stream started: ${fileName}`)
+    const passThroughStream = new PassThrough()
+
+    this.s3Client.upload({ Bucket: this.s3BuckeName, Key: fileName, Body: passThroughStream }, (error: Error, data: AWS.S3.ManagedUpload.SendData) => {
+      this.logger.info(error)
+      this.logger.info(data)
+      this.logger.info(`Upload of '${fileName}' finished`)
+    })
+
+    return passThroughStream
   }
 }
