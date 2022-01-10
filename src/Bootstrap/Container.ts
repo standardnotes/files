@@ -1,4 +1,5 @@
 import * as winston from 'winston'
+import * as AWS from 'aws-sdk'
 import { Container } from 'inversify'
 
 import { Env } from './Env'
@@ -29,6 +30,12 @@ export class ContainerConfigLoader {
     const logger = this.createLogger({ env })
     container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
+    const s3Client = new AWS.S3({
+      apiVersion: 'latest',
+      region: env.get('S3_AWS_REGION'),
+    })
+    container.bind<AWS.S3>(TYPES.S3).toConstantValue(s3Client)
+
     // use cases
     container.bind<CreateValetToken>(TYPES.CreateValetToken).to(CreateValetToken)
 
@@ -46,8 +53,10 @@ export class ContainerConfigLoader {
 
     // env vars
     container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))
+    container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION'))
     container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
     container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
+    container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     return container
   }
