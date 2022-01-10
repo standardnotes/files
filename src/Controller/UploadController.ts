@@ -45,6 +45,10 @@ export class UploadController extends BaseHttpController {
       this.logger.info(`Upload of '${fileName}' finished`)
     })
 
+    passThroughStream.on('close', () => {
+      this.logger.info('Closed pass through stream')
+    })
+
     return passThroughStream
   }
 }
