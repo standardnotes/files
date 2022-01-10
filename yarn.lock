@@ -517,6 +517,14 @@
   dependencies:
     methods "^1.1.2"
 
+"@newrelic/native-metrics@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@newrelic/native-metrics/-/native-metrics-7.0.2.tgz#1137a45deab644e959d699e527fb1955c845890a"
+  integrity sha512-r/V9AuQ3svcYWYDbRMIqy36guO3871b0/26e/Bx5SvfR1E/2uy6sHvtvzYIF5kOl+46AFuzR1C9ZfCe2ofCtgg==
+  dependencies:
+    nan "^2.14.2"
+    semver "^5.5.1"
+
 "@newrelic/native-metrics@^6.0.0":
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@newrelic/native-metrics/-/native-metrics-6.0.0.tgz#8c3b24070f2aebcbfa8329d80d24177f67581467"
@@ -620,10 +628,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@standardnotes/config@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@standardnotes/config/-/config-2.0.0.tgz#80773aa32008acb1a2943cce50e5678ac9e97156"
-  integrity sha512-5JHnoGJDmVe7oFp1pgu7R06/mkDdtMct1dP/JdKRAzAjCr/br/RNTrXtfkD6OmdnLvLk4j+tQIS81Ty13avlWQ==
+"@standardnotes/config@2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@standardnotes/config/-/config-2.0.1.tgz#13bfdae7a514c7479373502fa25e54bbfadad31b"
+  integrity sha512-WOItCUBUxzb4JH+/C3bCHi5t2ZZ8mvYGmokFgXko/SOnuYvjOlUYonWvn7qzDtz2SF+eI4rvDG7Lyuxt9aXA1A==
   dependencies:
     "@typescript-eslint/eslint-plugin" "^4.14.0"
     "@typescript-eslint/parser" "^4.14.0"
@@ -3883,6 +3891,11 @@ nan@^2.12.1, nan@^2.14.1:
   version "2.14.2"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
   integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
+
+nan@^2.14.2:
+  version "2.15.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.15.0.tgz#3f34a473ff18e15c1b5626b62903b5ad6e665fee"
+  integrity sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==
 
 nanomatch@^1.2.9:
   version "1.2.13"
