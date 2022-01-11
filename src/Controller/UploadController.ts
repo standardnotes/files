@@ -6,9 +6,9 @@ import {
   controller,
   httpPost,
 } from 'inversify-express-utils'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { Readable } from 'stream'
-import { FileInfo } from 'busboy'
+import { Busboy, FileInfo } from 'busboy'
 import { inject } from 'inversify'
 import TYPES from '../Bootstrap/Types'
 import { Logger } from 'winston'
@@ -24,15 +24,23 @@ export class UploadController extends BaseHttpController {
   }
 
   @httpPost('/')
-  public async upload(request: Request): Promise<void> {
+  public async upload(request: Request, response: Response): Promise<() => Busboy> {
     this.logger.info('Starting file upload')
-
-    request.pipe(request.busboy)
 
     request.busboy.on('file', (name: string, stream: Readable, info: FileInfo) => {
       this.logger.info(`File handling started ${name}`)
+
       stream.pipe(this.uploadFromStream(info.filename))
     })
+
+    request.busboy.on('finish', () => {
+      this.logger.info('Upload complete')
+
+      response.writeHead(200, { 'Connection': 'close' })
+      response.end('File successfully uploaded.')
+    })
+
+    return () => request.pipe(request.busboy)
   }
 
   private uploadFromStream(fileName: string) {
