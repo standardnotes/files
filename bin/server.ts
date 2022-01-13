@@ -7,7 +7,7 @@ import * as busboy from 'connect-busboy'
 
 import '../src/Controller/HealthCheckController'
 import '../src/Controller/ValetToken/ValetTokenController'
-// import '../src/Controller/UploadController'
+import '../src/Controller/UploadController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'

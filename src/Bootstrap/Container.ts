@@ -17,6 +17,9 @@ import { DateValidator } from '../Domain/Date/DateValidator'
 import { CreateValetTokenValidator } from '../Domain/UseCase/CreateValetToken/CreateValetTokenValidator'
 import { UuidValidator } from '../Domain/Uuid/UuidValidator'
 import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
+import { ValetTokenGeneratorInterface } from '../Domain/ValetToken/ValetTokenGeneratorInterface'
+import { ValetPayloadGeneratorInterface } from '../Domain/ValetToken/ValetPayloadGeneratorInterface'
+import { ValetTokenAuthMiddleware } from '../Controller/ValetTokenAuthMiddleware'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -43,9 +46,11 @@ export class ContainerConfigLoader {
 
     // services
     container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterNode)
+    container.bind<ValetPayloadGeneratorInterface>(TYPES.ValetPayloadGenerator).to(ValetPayloadGenerator)
+    container.bind<ValetTokenGeneratorInterface>(TYPES.ValetTokenGenerator).to(ValetTokenGenerator)
 
-    container.bind<ValetPayloadGenerator>(TYPES.ValetPayloadGenerator).to(ValetPayloadGenerator)
-    container.bind<ValetTokenGenerator>(TYPES.ValetTokenGenerator).to(ValetTokenGenerator)
+    // middleware
+    container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)
 
     // validators
     container.bind<OperationValidator>(TYPES.OperationValidator).to(OperationValidator)

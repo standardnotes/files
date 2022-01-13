@@ -20,7 +20,8 @@ export class CreateValetTokenValidator {
   constructor(
     @inject(TYPES.DateValidator) private dateValidator: DateValidator,
     @inject(TYPES.UuidValidator) private uuidValidator: UuidValidator,
-  ) {}
+  ) {
+  }
 
   /**
    * Assuming `request` contains a JS object in the `body`, parsed as JSON.

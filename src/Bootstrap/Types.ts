@@ -9,9 +9,11 @@ const TYPES = {
 
   // services
   Crypter: Symbol.for('Crypter'),
-
   ValetPayloadGenerator: Symbol.for('ValetPayloadGenerator'),
   ValetTokenGenerator: Symbol.for('ValetTokenGenerator'),
+
+  // middleware
+  ValetTokenAuthMiddleware: Symbol.for('ValetTokenAuthMiddleware'),
 
   // validators
   OperationValidator: Symbol.for('OperationValidator'),

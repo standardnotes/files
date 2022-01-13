@@ -23,15 +23,13 @@ describe('ValetTokenGenerator', () => {
     it('should succeed on valid token', async () => {
       const token = `eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyVXVpZCI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMCIsInBlcm1pdHRlZE9wZXJhdGlvbiI6InJlYWQiLCJwZXJtaXR0ZWRSZXNvdXJjZXMiOlt7Im5hbWUiOiJmaWxlLnR4dCJ9XSwidmFsaWRpdHlQZXJpb2QiOnsiZGF0ZSI6IjIwMjEtMDMtMTVUMTg6MTM6NDhaIiwiZXhwaXJlc0FmdGVyU2Vjb25kcyI6NzIwMH19.FCirQ803aPoImzl1FdJFGgNjZxhPYEBAGPmKd6h74d4:${valetTokenSecret}`
       const output = await makeSubject().toPayload(token)
-  
+
       expect(output).toEqual(valetPayload)
     })
     it('should fail on bad secret', async () => {
       const token = `token:${valetTokenSecret}`
-  
-      await expect(
-        makeSubject({ valetSecret: 'BAD' }).toPayload(token)
-      ).rejects.toThrow()
+
+      expect(await makeSubject({ valetSecret: 'BAD' }).toPayload(token)).toBeUndefined()
     })
   })
 })

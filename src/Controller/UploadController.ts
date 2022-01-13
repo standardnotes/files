@@ -9,7 +9,7 @@ import { Writable } from 'stream'
 import TYPES from '../Bootstrap/Types'
 import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
 
-@controller('/files')
+@controller('/files', TYPES.ValetTokenAuthMiddleware)
 export class UploadController extends BaseHttpController {
   constructor(
     @inject(TYPES.StreamUploadFile) private streamUploadFile: StreamUploadFile,
