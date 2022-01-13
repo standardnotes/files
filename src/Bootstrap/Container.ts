@@ -16,6 +16,7 @@ import { ValetTokenGenerator } from '../Domain/ValetToken/ValetTokenGenerator'
 import { DateValidator } from '../Domain/Date/DateValidator'
 import { CreateValetTokenValidator } from '../Domain/UseCase/CreateValetToken/CreateValetTokenValidator'
 import { UuidValidator } from '../Domain/Uuid/UuidValidator'
+import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -38,6 +39,7 @@ export class ContainerConfigLoader {
 
     // use cases
     container.bind<CreateValetToken>(TYPES.CreateValetToken).to(CreateValetToken)
+    container.bind<StreamUploadFile>(TYPES.StreamUploadFile).to(StreamUploadFile)
 
     // services
     container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterNode)
