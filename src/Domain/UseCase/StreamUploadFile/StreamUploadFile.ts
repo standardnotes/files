@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid'
 import * as AWS from 'aws-sdk'
 import { inject, injectable } from 'inversify'
 import { PassThrough } from 'stream'
@@ -27,11 +26,10 @@ export class StreamUploadFile implements UseCaseInterface {
       'file',
       /* istanbul ignore next */
       (_fieldName: string, stream: Readable, _info: FileInfo) => {
-        const fileName = uuid()
-        this.logger.debug(`Uploading from stream started: ${fileName}`)
+        this.logger.debug(`Uploading from stream started: ${dto.resource}`)
         const passThroughStream = new PassThrough()
 
-        const filePath = `${dto.response.locals.userUuid}/${fileName}`
+        const filePath = `${dto.userUuid}/${dto.resource}`
 
         this.s3Client.upload({ Bucket: this.s3BuckeName, Key: filePath, Body: passThroughStream }, () => {
           this.logger.debug(`Upload of '${filePath}' finished`)

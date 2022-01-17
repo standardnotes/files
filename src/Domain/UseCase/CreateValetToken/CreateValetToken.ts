@@ -1,50 +1,33 @@
+import { v4 as uuid } from 'uuid'
 import { inject, injectable } from 'inversify'
-import { OperationValidator } from '../../Operation/OperationValidator'
-import { ValetToken } from '../../ValetToken/ValetToken'
-import { CreateValetKeyDto } from './CreateValetTokenDto'
+import { TokenEncoderInterface, ValetTokenData } from '@standardnotes/auth'
+
+import { CreateValetTokenDTO } from './CreateValetTokenDTO'
 import { CreateValetTokenResponse } from './CreateValetTokenResponse'
 import { UseCaseInterface } from '../UseCaseInterface'
 import TYPES from '../../../Bootstrap/Types'
-import { ValetTokenGenerator } from '../../ValetToken/ValetTokenGenerator'
-import { ValetPayloadGenerator } from '../../ValetToken/ValetPayloadGenerator'
 
 @injectable()
 export class CreateValetToken implements UseCaseInterface {
   constructor(
-    @inject(TYPES.OperationValidator) private operationValidator: OperationValidator,
-    @inject(TYPES.ValetPayloadGenerator) private payloadGenerator: ValetPayloadGenerator,
-    @inject(TYPES.ValetTokenGenerator) private tokenGenerator: ValetTokenGenerator,
-  ) {}
+    @inject(TYPES.ValetTokenEncoder) private tokenEncoder: TokenEncoderInterface<ValetTokenData>,
+    @inject(TYPES.VALET_TOKEN_TTL) private valetTokenTTL: number,
+  ) {
+  }
 
-  /**
-   * Given a request from the API Gateway containing auth data for a user and the requested file operations generates a valet key which can be used to perform these operations directly via the Files Service.
-   */
-  async execute(dto: CreateValetKeyDto): Promise<CreateValetTokenResponse> {
-    const { user, operation, resources, validityPeriod } = dto
-    const { permissions, uuid } = user
-
-    if (!this.operationValidator.isOperationPermitted({
-      operation,
-      permissions,
-      resources,
-    })) {
-      return {
-        success: false,
-        error: {
-          message: `User ${uuid} is not authorized to perform the requested operation.`,
-          forbiddenOperation: operation,
-        },
-      }
+  async execute(dto: CreateValetTokenDTO): Promise<CreateValetTokenResponse> {
+    let permittedResources = dto.resources ?? []
+    if (dto.operation === 'write') {
+      permittedResources = [ uuid() ]
     }
 
-    const payload = this.payloadGenerator.createValetPayload({
-      uuid,
-      permittedOperation: operation,
-      permittedResources: resources,
-      validityPeriod,
-    })
+    const tokenData: ValetTokenData = {
+      userUuid: dto.userUuid,
+      permittedOperation: dto.operation,
+      permittedResources,
+    }
 
-    const valetToken: ValetToken = await this.tokenGenerator.fromPayload(payload)
+    const valetToken = this.tokenEncoder.encodeExpirableToken(tokenData, this.valetTokenTTL)
 
     return { success: true, valetToken }
   }

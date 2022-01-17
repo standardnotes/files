@@ -5,27 +5,13 @@ import { Container } from 'inversify'
 import { Env } from './Env'
 import TYPES from './Types'
 import { CreateValetToken } from '../Domain/UseCase/CreateValetToken/CreateValetToken'
-import dayjs = require('dayjs')
-import customParseFormat = require('dayjs/plugin/customParseFormat')
-import utc = require('dayjs/plugin/utc')
-import { CrypterInterface } from '../Domain/Encryption/CrypterInterface'
-import { CrypterNode } from '../Domain/Encryption/CrypterNode'
-import { OperationValidator } from '../Domain/Operation/OperationValidator'
-import { ValetPayloadGenerator } from '../Domain/ValetToken/ValetPayloadGenerator'
-import { ValetTokenGenerator } from '../Domain/ValetToken/ValetTokenGenerator'
-import { DateValidator } from '../Domain/Date/DateValidator'
-import { CreateValetTokenValidator } from '../Domain/UseCase/CreateValetToken/CreateValetTokenValidator'
-import { UuidValidator } from '../Domain/Uuid/UuidValidator'
 import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
-import { ValetTokenGeneratorInterface } from '../Domain/ValetToken/ValetTokenGeneratorInterface'
-import { ValetPayloadGeneratorInterface } from '../Domain/ValetToken/ValetPayloadGeneratorInterface'
 import { ValetTokenAuthMiddleware } from '../Controller/ValetTokenAuthMiddleware'
+import { CrossServiceTokenData, TokenDecoder, TokenDecoderInterface, TokenEncoder, TokenEncoderInterface, ValetTokenData } from '@standardnotes/auth'
+import { ApiGatewayAuthMiddleware } from '../Controller/ApiGatewayAuthMiddleware'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
-    dayjs.extend(customParseFormat)
-    dayjs.extend(utc)
-
     const env: Env = new Env()
     env.load()
 
@@ -45,24 +31,20 @@ export class ContainerConfigLoader {
     container.bind<StreamUploadFile>(TYPES.StreamUploadFile).to(StreamUploadFile)
 
     // services
-    container.bind<CrypterInterface>(TYPES.Crypter).to(CrypterNode)
-    container.bind<ValetPayloadGeneratorInterface>(TYPES.ValetPayloadGenerator).to(ValetPayloadGenerator)
-    container.bind<ValetTokenGeneratorInterface>(TYPES.ValetTokenGenerator).to(ValetTokenGenerator)
+    container.bind<TokenDecoderInterface<CrossServiceTokenData>>(TYPES.CrossServiceTokenDecoder).toConstantValue(new TokenDecoder<CrossServiceTokenData>(container.get(TYPES.AUTH_JWT_SECRET)))
+    container.bind<TokenEncoderInterface<ValetTokenData>>(TYPES.ValetTokenEncoder).toConstantValue(new TokenEncoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
+    container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)
-
-    // validators
-    container.bind<OperationValidator>(TYPES.OperationValidator).to(OperationValidator)
-    container.bind<DateValidator>(TYPES.DateValidator).to(DateValidator)
-    container.bind<UuidValidator>(TYPES.UuidValidator).to(UuidValidator)
-    container.bind<CreateValetTokenValidator>(TYPES.CreateValetTokenValidator).to(CreateValetTokenValidator)
+    container.bind<ApiGatewayAuthMiddleware>(TYPES.ApiGatewayAuthMiddleware).to(ApiGatewayAuthMiddleware)
 
     // env vars
     container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))
     container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION'))
-    container.bind(TYPES.JWT_SECRET).toConstantValue(env.get('JWT_SECRET'))
+    container.bind(TYPES.AUTH_JWT_SECRET).toConstantValue(env.get('AUTH_JWT_SECRET'))
     container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
+    container.bind(TYPES.VALET_TOKEN_TTL).toConstantValue(env.get('VALET_TOKEN_TTL'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     return container

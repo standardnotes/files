@@ -22,6 +22,8 @@ export class UploadController extends BaseHttpController {
     const result = await this.streamUploadFile.execute({
       request,
       response,
+      userUuid: response.locals.userUuid,
+      resource: response.locals.permittedResources[0],
     })
 
     return result.writeStream

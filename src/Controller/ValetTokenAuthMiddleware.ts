@@ -1,14 +1,14 @@
+import { TokenDecoderInterface, ValetTokenData } from '@standardnotes/auth'
 import { NextFunction, Request, Response } from 'express'
 import { inject, injectable } from 'inversify'
 import { BaseMiddleware } from 'inversify-express-utils'
 import { Logger } from 'winston'
 import TYPES from '../Bootstrap/Types'
-import { ValetTokenGeneratorInterface } from '../Domain/ValetToken/ValetTokenGeneratorInterface'
 
 @injectable()
 export class ValetTokenAuthMiddleware extends BaseMiddleware {
   constructor (
-    @inject(TYPES.ValetTokenGenerator) private valetTokenGenerator: ValetTokenGeneratorInterface,
+    @inject(TYPES.ValetTokenDecoder) private tokenDecoder: TokenDecoderInterface<ValetTokenData>,
     @inject(TYPES.Logger) private logger: Logger,
   ) {
     super()
@@ -30,7 +30,7 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
         return
       }
 
-      const valetTokenPayload = await this.valetTokenGenerator.toPayload(valetToken)
+      const valetTokenPayload = this.tokenDecoder.decodeToken(valetToken)
 
       if (valetTokenPayload === undefined) {
         this.logger.debug('ValetTokenAuthMiddleware authentication failure.')
@@ -44,8 +44,6 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
 
         return
       }
-
-      valetTokenPayload.validityPeriod.date
 
       response.locals.userUuid = valetTokenPayload.userUuid
       response.locals.permittedResources = valetTokenPayload.permittedResources

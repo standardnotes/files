@@ -8,24 +8,20 @@ const TYPES = {
   StreamUploadFile: Symbol.for('StreamUploadFile'),
 
   // services
-  Crypter: Symbol.for('Crypter'),
-  ValetPayloadGenerator: Symbol.for('ValetPayloadGenerator'),
-  ValetTokenGenerator: Symbol.for('ValetTokenGenerator'),
+  CrossServiceTokenDecoder: Symbol.for('CrossServiceTokenDecoder'),
+  ValetTokenDecoder: Symbol.for('ValetTokenDecoder'),
+  ValetTokenEncoder: Symbol.for('ValetTokenEncoder'),
 
   // middleware
   ValetTokenAuthMiddleware: Symbol.for('ValetTokenAuthMiddleware'),
-
-  // validators
-  OperationValidator: Symbol.for('OperationValidator'),
-  DateValidator: Symbol.for('DateValidator'),
-  CreateValetTokenValidator: Symbol.for('CreateValetTokenValidator'),
-  UuidValidator: Symbol.for('UuidValidator'),
+  ApiGatewayAuthMiddleware: Symbol.for('ApiGatewayAuthMiddleware'),
 
   // env vars
   S3_BUCKET_NAME: Symbol.for('S3_BUCKET_NAME'),
   S3_AWS_REGION: Symbol.for('S3_AWS_REGION'),
-  JWT_SECRET: Symbol.for('JWT_SECRET'),
   VALET_TOKEN_SECRET: Symbol.for('VALET_TOKEN_SECRET'),
+  VALET_TOKEN_TTL: Symbol.for('VALET_TOKEN_TTL'),
+  AUTH_JWT_SECRET: Symbol.for('AUTH_JWT_SECRET'),
   VERSION: Symbol.for('VERSION'),
 }
 

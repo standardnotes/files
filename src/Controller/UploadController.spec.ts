@@ -19,7 +19,11 @@ describe('UploadController', () => {
     streamUploadFile.execute = jest.fn().mockReturnValue({ writeStream })
 
     request = {} as jest.Mocked<Request>
-    response = {} as jest.Mocked<Response>
+    response = {
+      locals: {},
+    } as jest.Mocked<Response>
+    response.locals.userUuid = '1-2-3'
+    response.locals.permittedResources = ['2-3-4']
   })
 
   it('should return a writable stream upon file upload', async () => {

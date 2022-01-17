@@ -35,7 +35,12 @@ describe('StreamUploadFile', () => {
   })
 
   it('should stream upload file contents to S3', async () => {
-    const result = await createUseCase().execute({ request, response })
+    const result = await createUseCase().execute({
+      request,
+      response,
+      userUuid: '1-2-3',
+      resource: '2-3-4',
+    })
 
     expect(result.writeStream).toBeInstanceOf(Function)
   })

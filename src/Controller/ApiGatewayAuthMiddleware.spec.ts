@@ -1,12 +1,12 @@
 import 'reflect-metadata'
 
-import { ValetTokenAuthMiddleware } from './ValetTokenAuthMiddleware'
+import { ApiGatewayAuthMiddleware } from './ApiGatewayAuthMiddleware'
 import { NextFunction, Request, Response } from 'express'
 import { Logger } from 'winston'
-import { TokenDecoderInterface, ValetTokenData } from '@standardnotes/auth'
+import { CrossServiceTokenData, RoleName, TokenDecoderInterface } from '@standardnotes/auth'
 
-describe('ValetTokenAuthMiddleware', () => {
-  let tokenDecoder: TokenDecoderInterface<ValetTokenData>
+describe('ApiGatewayAuthMiddleware', () => {
+  let tokenDecoder: TokenDecoderInterface<CrossServiceTokenData>
   let request: Request
   let response: Response
   let next: NextFunction
@@ -15,23 +15,28 @@ describe('ValetTokenAuthMiddleware', () => {
     debug: jest.fn(),
   } as unknown as jest.Mocked<Logger>
 
-  const createMiddleware = () => new ValetTokenAuthMiddleware(
+  const createMiddleware = () => new ApiGatewayAuthMiddleware(
     tokenDecoder,
     logger,
   )
 
   beforeEach(() => {
-    tokenDecoder = {} as jest.Mocked<TokenDecoderInterface<ValetTokenData>>
+    tokenDecoder = {} as jest.Mocked<TokenDecoderInterface<CrossServiceTokenData>>
     tokenDecoder.decodeToken = jest.fn().mockReturnValue({
-      userUuid: '1-2-3',
-      permittedResources: [ '1-2-3/2-3-4' ],
-      permittedOperation: 'write',
+      user: {
+        uuid: '1-2-3',
+        email: 'test@test.te',
+      },
+      roles: [
+        {
+          uuid: 'a-b-c',
+          name: RoleName.CoreUser,
+        },
+      ],
     })
 
     request = {
       headers: {},
-      query: {},
-      body: {},
     } as jest.Mocked<Request>
     response = {
       locals: {},
@@ -41,31 +46,34 @@ describe('ValetTokenAuthMiddleware', () => {
     next = jest.fn()
   })
 
-  it('should authorize user with a valet token', async () => {
-    request.headers['x-valet-token'] = 'valet-token'
+  it('should authorize user', async () => {
+    request.headers['x-auth-token'] = 'auth-jwt-token'
 
     await createMiddleware().handler(request, response, next)
 
-    expect(response.locals).toEqual({
-      userUuid: '1-2-3',
-      permittedOperation: 'write',
-      permittedResources: [
-        '1-2-3/2-3-4',
-      ],
+    expect(response.locals.user).toEqual({
+      uuid: '1-2-3',
+      email: 'test@test.te',
     })
+    expect(response.locals.roles).toEqual([
+      {
+        uuid: 'a-b-c',
+        name: RoleName.CoreUser,
+      },
+    ])
 
     expect(next).toHaveBeenCalled()
   })
 
-  it('should not authorize if request is missing valet token in headers', async () => {
+  it('should not authorize if request is missing auth jwt token in headers', async () => {
     await createMiddleware().handler(request, response, next)
 
     expect(response.status).toHaveBeenCalledWith(401)
     expect(next).not.toHaveBeenCalled()
   })
 
-  it('should not authorize if auth valet token is malformed', async () => {
-    request.headers['x-valet-token'] = 'valet-token'
+  it('should not authorize if auth jwt token is malformed', async () => {
+    request.headers['x-auth-token'] = 'auth-jwt-token'
 
     tokenDecoder.decodeToken = jest.fn().mockReturnValue(undefined)
 
@@ -76,7 +84,7 @@ describe('ValetTokenAuthMiddleware', () => {
   })
 
   it('should pass the error to next middleware if one occurres', async () => {
-    request.headers['x-valet-token'] = 'valet-token'
+    request.headers['x-auth-token'] = 'auth-jwt-token'
 
     const error = new Error('Ooops')
 
