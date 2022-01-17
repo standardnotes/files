@@ -30,11 +30,6 @@ export class ContainerConfigLoader {
     container.bind<CreateValetToken>(TYPES.CreateValetToken).to(CreateValetToken)
     container.bind<StreamUploadFile>(TYPES.StreamUploadFile).to(StreamUploadFile)
 
-    // services
-    container.bind<TokenDecoderInterface<CrossServiceTokenData>>(TYPES.CrossServiceTokenDecoder).toConstantValue(new TokenDecoder<CrossServiceTokenData>(container.get(TYPES.AUTH_JWT_SECRET)))
-    container.bind<TokenEncoderInterface<ValetTokenData>>(TYPES.ValetTokenEncoder).toConstantValue(new TokenEncoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
-    container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
-
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)
     container.bind<ApiGatewayAuthMiddleware>(TYPES.ApiGatewayAuthMiddleware).to(ApiGatewayAuthMiddleware)
@@ -46,6 +41,11 @@ export class ContainerConfigLoader {
     container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
     container.bind(TYPES.VALET_TOKEN_TTL).toConstantValue(env.get('VALET_TOKEN_TTL'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
+
+    // services
+    container.bind<TokenDecoderInterface<CrossServiceTokenData>>(TYPES.CrossServiceTokenDecoder).toConstantValue(new TokenDecoder<CrossServiceTokenData>(container.get(TYPES.AUTH_JWT_SECRET)))
+    container.bind<TokenEncoderInterface<ValetTokenData>>(TYPES.ValetTokenEncoder).toConstantValue(new TokenEncoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
+    container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
 
     return container
   }
