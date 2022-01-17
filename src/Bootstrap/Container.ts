@@ -39,7 +39,7 @@ export class ContainerConfigLoader {
     container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION'))
     container.bind(TYPES.AUTH_JWT_SECRET).toConstantValue(env.get('AUTH_JWT_SECRET'))
     container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
-    container.bind(TYPES.VALET_TOKEN_TTL).toConstantValue(env.get('VALET_TOKEN_TTL'))
+    container.bind(TYPES.VALET_TOKEN_TTL).toConstantValue(+env.get('VALET_TOKEN_TTL'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     // services
