@@ -29,34 +29,42 @@ export class StreamUploadFile implements UseCaseInterface {
     dto.request.busboy.on(
       'file',
       /* istanbul ignore next */
-      async (_fieldName: string, stream: Readable, _info: FileInfo) => {
+      (_fieldName: string, stream: Readable, _info: FileInfo) => {
         this.logger.debug(`Uploading from stream started: ${dto.resource}`)
         const passThroughStream = new PassThrough()
 
         const filePath = `${dto.userUuid}/${dto.resource}`
 
-        await this.s3Client.upload({
+        this.s3Client.upload({
           Bucket: this.s3BuckeName,
           Key: filePath,
           Body: passThroughStream,
           StorageClass: 'INTELLIGENT_TIERING',
-        }).promise()
+        }, () => {
+          this.logger.debug(`Upload of '${filePath}' finished`)
+        })
+
+        stream.pipe(passThroughStream)
+      }
+    )
+
+    dto.request.busboy.on(
+      'finish',
+      /* istanbul ignore next */
+      async () => {
+        this.logger.info('Upload complete')
 
         await this.domainEventPublisher.publish(
           this.domainEventFactory.createFileUploadedEvent({
             userUuid: dto.userUuid,
-            filePath,
+            filePath: `${dto.userUuid}/${dto.resource}`,
             fileName: dto.resource,
             fileByteSize: +(dto.request.headers['content-length'] as string),
           })
         )
 
-        this.logger.debug(`Upload of '${filePath}' finished`)
-
         dto.response.writeHead(200, { 'Connection': 'close' })
         dto.response.end('File successfully uploaded.')
-
-        stream.pipe(passThroughStream)
       }
     )
 
