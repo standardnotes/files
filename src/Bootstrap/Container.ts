@@ -9,6 +9,10 @@ import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploa
 import { ValetTokenAuthMiddleware } from '../Controller/ValetTokenAuthMiddleware'
 import { CrossServiceTokenData, TokenDecoder, TokenDecoderInterface, TokenEncoder, TokenEncoderInterface, ValetTokenData } from '@standardnotes/auth'
 import { ApiGatewayAuthMiddleware } from '../Controller/ApiGatewayAuthMiddleware'
+import { Timer, TimerInterface } from '@standardnotes/time'
+import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
+import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
+import { SNSDomainEventPublisher } from '@standardnotes/domain-events-infra'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -26,6 +30,11 @@ export class ContainerConfigLoader {
     })
     container.bind<AWS.S3>(TYPES.S3).toConstantValue(s3Client)
 
+    container.bind<AWS.SNS>(TYPES.SNS).toConstantValue(new AWS.SNS({
+      apiVersion: 'latest',
+      region: env.get('SNS_AWS_REGION'),
+    }))
+
     // use cases
     container.bind<CreateValetToken>(TYPES.CreateValetToken).to(CreateValetToken)
     container.bind<StreamUploadFile>(TYPES.StreamUploadFile).to(StreamUploadFile)
@@ -40,12 +49,22 @@ export class ContainerConfigLoader {
     container.bind(TYPES.AUTH_JWT_SECRET).toConstantValue(env.get('AUTH_JWT_SECRET'))
     container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
     container.bind(TYPES.VALET_TOKEN_TTL).toConstantValue(+env.get('VALET_TOKEN_TTL'))
+    container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN'))
+    container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     // services
     container.bind<TokenDecoderInterface<CrossServiceTokenData>>(TYPES.CrossServiceTokenDecoder).toConstantValue(new TokenDecoder<CrossServiceTokenData>(container.get(TYPES.AUTH_JWT_SECRET)))
     container.bind<TokenEncoderInterface<ValetTokenData>>(TYPES.ValetTokenEncoder).toConstantValue(new TokenEncoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
     container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
+    container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
+    container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
+    container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
+      new SNSDomainEventPublisher(
+        container.get(TYPES.SNS),
+        container.get(TYPES.SNS_TOPIC_ARN)
+      )
+    )
 
     return container
   }

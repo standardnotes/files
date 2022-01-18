@@ -7,6 +7,8 @@ import { Writable } from 'stream'
 import { StreamUploadFile } from './StreamUploadFile'
 import { Request, Response } from 'express'
 import { Busboy } from 'busboy'
+import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
+import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
 
 describe('StreamUploadFile', () => {
   let s3Client: AWS.S3
@@ -14,11 +16,23 @@ describe('StreamUploadFile', () => {
   let logger: Logger
   let request: Request
   let response: Response
+  let domainEventPublisher: DomainEventPublisherInterface
+  let domainEventFactory: DomainEventFactoryInterface
 
-  const createUseCase = () => new StreamUploadFile(s3Client, s3BuckeName, logger)
+  const createUseCase = () => new StreamUploadFile(
+    s3Client,
+    s3BuckeName,
+    domainEventPublisher,
+    domainEventFactory,
+    logger
+  )
 
   beforeEach(() => {
     s3Client = {} as jest.Mocked<AWS.S3>
+
+    domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
+
+    domainEventFactory = {} as jest.Mocked<DomainEventFactoryInterface>
 
     logger = {} as jest.Mocked<Logger>
     logger.debug = jest.fn()
