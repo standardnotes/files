@@ -6,7 +6,6 @@ import * as Sentry from '@sentry/node'
 import * as busboy from 'connect-busboy'
 
 import '../src/Controller/HealthCheckController'
-import '../src/Controller/ValetTokenController'
 import '../src/Controller/UploadController'
 
 import * as helmet from 'helmet'

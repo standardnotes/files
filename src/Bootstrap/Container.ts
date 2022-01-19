@@ -4,11 +4,9 @@ import { Container } from 'inversify'
 
 import { Env } from './Env'
 import TYPES from './Types'
-import { CreateValetToken } from '../Domain/UseCase/CreateValetToken/CreateValetToken'
 import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
 import { ValetTokenAuthMiddleware } from '../Controller/ValetTokenAuthMiddleware'
-import { CrossServiceTokenData, TokenDecoder, TokenDecoderInterface, TokenEncoder, TokenEncoderInterface, ValetTokenData } from '@standardnotes/auth'
-import { ApiGatewayAuthMiddleware } from '../Controller/ApiGatewayAuthMiddleware'
+import { TokenDecoder, TokenDecoderInterface, ValetTokenData } from '@standardnotes/auth'
 import { Timer, TimerInterface } from '@standardnotes/time'
 import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
@@ -36,26 +34,20 @@ export class ContainerConfigLoader {
     }))
 
     // use cases
-    container.bind<CreateValetToken>(TYPES.CreateValetToken).to(CreateValetToken)
     container.bind<StreamUploadFile>(TYPES.StreamUploadFile).to(StreamUploadFile)
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)
-    container.bind<ApiGatewayAuthMiddleware>(TYPES.ApiGatewayAuthMiddleware).to(ApiGatewayAuthMiddleware)
 
     // env vars
     container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME'))
     container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION'))
-    container.bind(TYPES.AUTH_JWT_SECRET).toConstantValue(env.get('AUTH_JWT_SECRET'))
     container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
-    container.bind(TYPES.VALET_TOKEN_TTL).toConstantValue(+env.get('VALET_TOKEN_TTL'))
     container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN'))
     container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     // services
-    container.bind<TokenDecoderInterface<CrossServiceTokenData>>(TYPES.CrossServiceTokenDecoder).toConstantValue(new TokenDecoder<CrossServiceTokenData>(container.get(TYPES.AUTH_JWT_SECRET)))
-    container.bind<TokenEncoderInterface<ValetTokenData>>(TYPES.ValetTokenEncoder).toConstantValue(new TokenEncoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
     container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
     container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
