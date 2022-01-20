@@ -11,6 +11,7 @@ import { Timer, TimerInterface } from '@standardnotes/time'
 import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
 import { SNSDomainEventPublisher } from '@standardnotes/domain-events-infra'
+import { StreamDownloadFile } from '../Domain/UseCase/StreamDownloadFile/StreamDownloadFile'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -35,6 +36,7 @@ export class ContainerConfigLoader {
 
     // use cases
     container.bind<StreamUploadFile>(TYPES.StreamUploadFile).to(StreamUploadFile)
+    container.bind<StreamDownloadFile>(TYPES.StreamDownloadFile).to(StreamDownloadFile)
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)

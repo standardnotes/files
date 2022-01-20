@@ -6,6 +6,7 @@ const TYPES = {
 
   // use cases
   StreamUploadFile: Symbol.for('StreamUploadFile'),
+  StreamDownloadFile: Symbol.for('StreamDownloadFile'),
 
   // services
   ValetTokenDecoder: Symbol.for('ValetTokenDecoder'),
