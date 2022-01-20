@@ -3,15 +3,15 @@ import 'reflect-metadata'
 import { Request, Response } from 'express'
 import { Writable } from 'stream'
 import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
-import { UploadController } from './UploadController'
+import { FilesController } from './FilesController'
 
-describe('UploadController', () => {
+describe('FilesController', () => {
   let streamUploadFile: StreamUploadFile
   let request: Request
   let response: Response
   let writeStream: () => Writable
 
-  const createController = () => new UploadController(streamUploadFile)
+  const createController = () => new FilesController(streamUploadFile)
 
   beforeEach(() => {
     writeStream = () => new Writable()
