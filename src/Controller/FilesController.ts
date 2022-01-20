@@ -11,7 +11,7 @@ import TYPES from '../Bootstrap/Types'
 import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
 import { StreamDownloadFile } from '../Domain/UseCase/StreamDownloadFile/StreamDownloadFile'
 
-@controller('/files')
+@controller('/files', TYPES.ValetTokenAuthMiddleware)
 export class FilesController extends BaseHttpController {
   constructor(
     @inject(TYPES.StreamUploadFile) private streamUploadFile: StreamUploadFile,
@@ -20,7 +20,7 @@ export class FilesController extends BaseHttpController {
     super()
   }
 
-  @httpPost('/', TYPES.ValetTokenAuthMiddleware)
+  @httpPost('/')
   public async upload(request: Request, response: Response): Promise<() => Writable> {
     const result = await this.streamUploadFile.execute({
       request,
