@@ -30,9 +30,9 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
         return
       }
 
-      const valetTokenPayload = this.tokenDecoder.decodeToken(valetToken)
+      const valetTokenData = this.tokenDecoder.decodeToken(valetToken)
 
-      if (valetTokenPayload === undefined) {
+      if (valetTokenData === undefined) {
         this.logger.debug('ValetTokenAuthMiddleware authentication failure.')
 
         response.status(401).send({
@@ -45,13 +45,34 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
         return
       }
 
-      response.locals.userUuid = valetTokenPayload.userUuid
-      response.locals.permittedResources = valetTokenPayload.permittedResources
-      response.locals.permittedOperation = valetTokenPayload.permittedOperation
+      if (this.userHasNoSpaceToUpload(valetTokenData, +(request.headers['content-length'] as string))) {
+        response.status(403).send({
+          error: {
+            tag: 'no-space',
+            message: 'The file you are trying to upload is too big. Please upgrade your subscription',
+          },
+        })
+
+        return
+      }
+
+      response.locals.userUuid = valetTokenData.userUuid
+      response.locals.permittedResources = valetTokenData.permittedResources
+      response.locals.permittedOperation = valetTokenData.permittedOperation
 
       return next()
     } catch (error) {
       return next(error)
     }
+  }
+
+  private userHasNoSpaceToUpload(valetTokenData: ValetTokenData, contentLength: number) {
+    if (valetTokenData.permittedOperation === 'read') {
+      return false
+    }
+
+    const remainingUploadSpace = valetTokenData.uploadBytesLimit - valetTokenData.uploadBytesUsed
+
+    return remainingUploadSpace - contentLength <= 0
   }
 }

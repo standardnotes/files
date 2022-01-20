@@ -26,6 +26,8 @@ describe('ValetTokenAuthMiddleware', () => {
       userUuid: '1-2-3',
       permittedResources: [ '1-2-3/2-3-4' ],
       permittedOperation: 'write',
+      uploadBytesLimit: 100,
+      uploadBytesUsed: 80,
     })
 
     request = {
@@ -43,12 +45,48 @@ describe('ValetTokenAuthMiddleware', () => {
 
   it('should authorize user with a valet token', async () => {
     request.headers['x-valet-token'] = 'valet-token'
+    request.headers['content-length'] = '10'
 
     await createMiddleware().handler(request, response, next)
 
     expect(response.locals).toEqual({
       userUuid: '1-2-3',
       permittedOperation: 'write',
+      permittedResources: [
+        '1-2-3/2-3-4',
+      ],
+    })
+
+    expect(next).toHaveBeenCalled()
+  })
+
+  it('should not authorize user with no space left for upload', async () => {
+    request.headers['x-valet-token'] = 'valet-token'
+    request.headers['content-length'] = '21'
+
+    await createMiddleware().handler(request, response, next)
+
+    expect(response.status).toHaveBeenCalledWith(403)
+    expect(next).not.toHaveBeenCalled()
+  })
+
+  it('should authorize user with no space left for upload for download operations', async () => {
+    request.headers['x-valet-token'] = 'valet-token'
+    request.headers['content-length'] = '21'
+
+    tokenDecoder.decodeToken = jest.fn().mockReturnValue({
+      userUuid: '1-2-3',
+      permittedResources: [ '1-2-3/2-3-4' ],
+      permittedOperation: 'read',
+      uploadBytesLimit: 100,
+      uploadBytesUsed: 80,
+    })
+
+    await createMiddleware().handler(request, response, next)
+
+    expect(response.locals).toEqual({
+      userUuid: '1-2-3',
+      permittedOperation: 'read',
       permittedResources: [
         '1-2-3/2-3-4',
       ],
