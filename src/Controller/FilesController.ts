@@ -35,6 +35,7 @@ export class FilesController extends BaseHttpController {
   @httpGet('/')
   public async download(_request: Request, response: Response): Promise<() => Writable> {
     const result = await this.streamDownloadFile.execute({
+      userUuid: response.locals.userUuid,
       resource: response.locals.permittedResources[0],
     })
 

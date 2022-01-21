@@ -16,7 +16,7 @@ export class StreamDownloadFile implements UseCaseInterface {
   async execute(dto: StreamDownloadFileDTO): Promise<StreamDownloadFileResponse> {
     const readStream = this.s3Client.getObject({
       Bucket: this.s3BuckeName,
-      Key: dto.resource,
+      Key: `${dto.userUuid}/${dto.resource}`,
     }).createReadStream()
 
     return {

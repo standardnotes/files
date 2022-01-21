@@ -24,6 +24,7 @@ describe('StreamDownloadFile', () => {
 
   it('should stream download file contents from S3', async () => {
     const result = await createUseCase().execute({
+      userUuid: '2-3-4',
       resource: '1-2-3',
     })
 
