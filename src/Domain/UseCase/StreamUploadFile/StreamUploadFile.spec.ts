@@ -1,18 +1,17 @@
 import 'reflect-metadata'
 
-import * as AWS from 'aws-sdk'
 import { Logger } from 'winston'
-import { Writable } from 'stream'
+import { Writable, PassThrough } from 'stream'
 
 import { StreamUploadFile } from './StreamUploadFile'
 import { Request, Response } from 'express'
 import { Busboy } from 'busboy'
 import { DomainEventFactoryInterface } from '../../Event/DomainEventFactoryInterface'
 import { DomainEventPublisherInterface } from '@standardnotes/domain-events'
+import { FileUploaderInterface } from '../../Services/FileUploaderInterface'
 
 describe('StreamUploadFile', () => {
-  let s3Client: AWS.S3
-  const s3BuckeName = 'my-bucket'
+  let fileUploader: FileUploaderInterface
   let logger: Logger
   let request: Request
   let response: Response
@@ -20,15 +19,15 @@ describe('StreamUploadFile', () => {
   let domainEventFactory: DomainEventFactoryInterface
 
   const createUseCase = () => new StreamUploadFile(
-    s3Client,
-    s3BuckeName,
+    fileUploader,
     domainEventPublisher,
     domainEventFactory,
     logger
   )
 
   beforeEach(() => {
-    s3Client = {} as jest.Mocked<AWS.S3>
+    fileUploader = {} as jest.Mocked<FileUploaderInterface>
+    fileUploader.createUploadStream = jest.fn().mockReturnValue(new PassThrough())
 
     domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
 

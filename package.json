@@ -80,7 +80,8 @@
       "/node_modules/",
       "/Bootstrap/",
       "/test/",
-      "HealthCheckController"
+      "HealthCheckController",
+      "/Infra/FS"
     ],
     "setupFilesAfterEnv": [
       "<rootDir>/test-setup.ts"

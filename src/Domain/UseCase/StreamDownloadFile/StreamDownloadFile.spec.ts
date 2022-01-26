@@ -1,25 +1,18 @@
 import 'reflect-metadata'
 
-import * as AWS from 'aws-sdk'
 import { Readable } from 'stream'
+import { FileDownloaderInterface } from '../../Services/FileDownloaderInterface'
 
 import { StreamDownloadFile } from './StreamDownloadFile'
 
 describe('StreamDownloadFile', () => {
-  let s3Client: AWS.S3
-  const s3BuckeName = 'my-bucket'
+  let fileDownloader: FileDownloaderInterface
 
-  const createUseCase = () => new StreamDownloadFile(
-    s3Client,
-    s3BuckeName
-  )
+  const createUseCase = () => new StreamDownloadFile(fileDownloader)
 
   beforeEach(() => {
-    const awsRequest = {} as jest.Mocked<AWS.Request<AWS.S3.Types.GetObjectOutput, AWS.AWSError>>
-    awsRequest.createReadStream = jest.fn().mockReturnValue(new Readable())
-
-    s3Client = {} as jest.Mocked<AWS.S3>
-    s3Client.getObject = jest.fn().mockReturnValue(awsRequest)
+    fileDownloader = {} as jest.Mocked<FileDownloaderInterface>
+    fileDownloader.createDownloadStream = jest.fn().mockReturnValue(new Readable())
   })
 
   it('should stream download file contents from S3', async () => {
