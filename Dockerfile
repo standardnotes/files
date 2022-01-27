@@ -1,4 +1,4 @@
-FROM node:15.11.0-alpine
+FROM node:16.13.1-alpine3.15
 
 ARG UID=1001
 ARG GID=1001
@@ -7,8 +7,7 @@ RUN addgroup -S files -g $GID && adduser -D -S files -G files -u $UID
 
 RUN apk add --update --no-cache \
     alpine-sdk \
-    python \
-    curl
+    python3
 
 WORKDIR /var/www
 
@@ -22,7 +21,7 @@ RUN yarn install --pure-lockfile
 
 COPY --chown=$UID:$GID . /var/www
 
-RUN yarn build
+RUN NODE_OPTIONS="--max-old-space-size=2048" yarn build
 
 ENTRYPOINT [ "docker/entrypoint.sh" ]
 

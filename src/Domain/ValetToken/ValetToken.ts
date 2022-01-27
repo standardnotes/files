@@ -1,1 +1,0 @@
-export type ValetToken = string

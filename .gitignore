@@ -12,3 +12,6 @@ junit.xml
 
 # MySQL data
 data
+
+# NewRelic
+newrelic_agent.log
