@@ -7,6 +7,6 @@ import { FileUploaderInterface } from '../../Domain/Services/FileUploaderInterfa
 @injectable()
 export class FSFileUploader implements FileUploaderInterface {
   createUploadStream(filePath: string): Writable {
-    return createWriteStream(`./tmp/${filePath}`, { flags: 'w+' })
+    return createWriteStream(`${__dirname}/tmp/${filePath}`, { flags: 'w+' })
   }
 }
