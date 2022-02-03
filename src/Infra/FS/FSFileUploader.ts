@@ -1,4 +1,4 @@
-import { createWriteStream, mkdirSync, mkdtempSync } from 'fs'
+import { createWriteStream, mkdirSync } from 'fs'
 import { dirname } from 'path'
 import { injectable } from 'inversify'
 import { Writable } from 'stream'
