@@ -6,8 +6,10 @@ const TYPES = {
   SNS: Symbol.for('SNS'),
 
   // use cases
-  StreamUploadFile: Symbol.for('StreamUploadFile'),
+  UploadFileChunk: Symbol.for('UploadFileChunk'),
   StreamDownloadFile: Symbol.for('StreamDownloadFile'),
+  CreateUploadSession: Symbol.for('CreateUploadSession'),
+  FinishUploadSession: Symbol.for('FinishUploadSession'),
 
   // services
   ValetTokenDecoder: Symbol.for('ValetTokenDecoder'),
@@ -16,6 +18,9 @@ const TYPES = {
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),
   FileUploader: Symbol.for('FileUploader'),
   FileDownloader: Symbol.for('FileDownloader'),
+
+  // repositories
+  UploadRepository: Symbol.for('UploadRepository'),
 
   // middleware
   ValetTokenAuthMiddleware: Symbol.for('ValetTokenAuthMiddleware'),
