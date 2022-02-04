@@ -21,6 +21,8 @@ import { FSFileDownloader } from '../Infra/FS/FSFileDownloader'
 import { FSFileUploader } from '../Infra/FS/FSFileUploader'
 import { CreateUploadSession } from '../Domain/UseCase/CreateUploadSession/CreateUploadSession'
 import { FinishUploadSession } from '../Domain/UseCase/FinishUploadSession/FinishUploadSession'
+import { UploadRepositoryInterface } from '../Domain/Upload/UploadRepositoryInterface'
+import { RedisUploadRepository } from '../Infra/Redis/RedisUploadRepository'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -86,6 +88,9 @@ export class ContainerConfigLoader {
     container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
     container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
+
+    // repositories
+    container.bind<UploadRepositoryInterface>(TYPES.UploadRepository).to(RedisUploadRepository)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
