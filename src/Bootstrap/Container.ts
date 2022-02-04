@@ -5,7 +5,7 @@ import { Container } from 'inversify'
 
 import { Env } from './Env'
 import TYPES from './Types'
-import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
+import { UploadFileChunk } from '../Domain/UseCase/UploadFileChunk/UploadFileChunk'
 import { ValetTokenAuthMiddleware } from '../Controller/ValetTokenAuthMiddleware'
 import { TokenDecoder, TokenDecoderInterface, ValetTokenData } from '@standardnotes/auth'
 import { Timer, TimerInterface } from '@standardnotes/time'
@@ -19,6 +19,10 @@ import { FileUploaderInterface } from '../Domain/Services/FileUploaderInterface'
 import { S3FileUploader } from '../Infra/S3/S3FileUploader'
 import { FSFileDownloader } from '../Infra/FS/FSFileDownloader'
 import { FSFileUploader } from '../Infra/FS/FSFileUploader'
+import { CreateUploadSession } from '../Domain/UseCase/CreateUploadSession/CreateUploadSession'
+import { FinishUploadSession } from '../Domain/UseCase/FinishUploadSession/FinishUploadSession'
+import { UploadRepositoryInterface } from '../Domain/Upload/UploadRepositoryInterface'
+import { RedisUploadRepository } from '../Infra/Redis/RedisUploadRepository'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -62,8 +66,10 @@ export class ContainerConfigLoader {
     }
 
     // use cases
-    container.bind<StreamUploadFile>(TYPES.StreamUploadFile).to(StreamUploadFile)
+    container.bind<UploadFileChunk>(TYPES.UploadFileChunk).to(UploadFileChunk)
     container.bind<StreamDownloadFile>(TYPES.StreamDownloadFile).to(StreamDownloadFile)
+    container.bind<CreateUploadSession>(TYPES.CreateUploadSession).to(CreateUploadSession)
+    container.bind<FinishUploadSession>(TYPES.FinishUploadSession).to(FinishUploadSession)
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)
@@ -82,6 +88,9 @@ export class ContainerConfigLoader {
     container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
     container.bind<TimerInterface>(TYPES.Timer).toConstantValue(new Timer())
     container.bind<DomainEventFactoryInterface>(TYPES.DomainEventFactory).to(DomainEventFactory)
+
+    // repositories
+    container.bind<UploadRepositoryInterface>(TYPES.UploadRepository).to(RedisUploadRepository)
 
     if (env.get('SNS_TOPIC_ARN', true)) {
       container.bind<SNSDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(

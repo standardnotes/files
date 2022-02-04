@@ -3,33 +3,70 @@ import {
   controller,
   httpGet,
   httpPost,
+  results,
 } from 'inversify-express-utils'
 import { Request, Response } from 'express'
 import { inject } from 'inversify'
 import { Writable } from 'stream'
 import TYPES from '../Bootstrap/Types'
-import { StreamUploadFile } from '../Domain/UseCase/StreamUploadFile/StreamUploadFile'
+import { UploadFileChunk } from '../Domain/UseCase/UploadFileChunk/UploadFileChunk'
 import { StreamDownloadFile } from '../Domain/UseCase/StreamDownloadFile/StreamDownloadFile'
+import { CreateUploadSession } from '../Domain/UseCase/CreateUploadSession/CreateUploadSession'
+import { FinishUploadSession } from '../Domain/UseCase/FinishUploadSession/FinishUploadSession'
 
-@controller('/files', TYPES.ValetTokenAuthMiddleware)
+@controller('/v1/files', TYPES.ValetTokenAuthMiddleware)
 export class FilesController extends BaseHttpController {
   constructor(
-    @inject(TYPES.StreamUploadFile) private streamUploadFile: StreamUploadFile,
+    @inject(TYPES.UploadFileChunk) private uploadFileChunk: UploadFileChunk,
+    @inject(TYPES.CreateUploadSession) private createUploadSession: CreateUploadSession,
+    @inject(TYPES.FinishUploadSession) private finishUploadSession: FinishUploadSession,
     @inject(TYPES.StreamDownloadFile) private streamDownloadFile: StreamDownloadFile,
   ) {
     super()
   }
 
-  @httpPost('/')
-  public async upload(request: Request, response: Response): Promise<() => Writable> {
-    const result = await this.streamUploadFile.execute({
-      request,
-      response,
+  @httpPost('/upload/create-session')
+  public async startUpload(_request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
+    const result = await this.createUploadSession.execute({
       userUuid: response.locals.userUuid,
       resource: response.locals.permittedResources[0],
     })
 
-    return result.writeStream
+    if (!result.success) {
+      return this.badRequest(result.message)
+    }
+
+    return this.json({ uploadId: result.uploadId })
+  }
+
+  @httpPost('/upload/chunk')
+  public async uploadChunk(request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.OkResult> {
+    const result = await this.uploadFileChunk.execute({
+      userUuid: response.locals.userUuid,
+      resource: response.locals.permittedResources[0],
+      chunkId: +request.body.chunkId,
+      data: request.body.data,
+    })
+
+    if (!result.success) {
+      return this.badRequest(result.message)
+    }
+
+    return this.ok()
+  }
+
+  @httpPost('/upload/close-session')
+  public async finishUpload(_request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
+    const result = await this.finishUploadSession.execute({
+      userUuid: response.locals.userUuid,
+      resource: response.locals.permittedResources[0],
+    })
+
+    if (!result.success) {
+      return this.badRequest(result.message)
+    }
+
+    return this.json({ message: 'File uploaded successfully' })
   }
 
   @httpGet('/')
