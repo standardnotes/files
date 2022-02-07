@@ -50,7 +50,7 @@ export class FilesController extends BaseHttpController {
       userUuid: response.locals.userUuid,
       resource: response.locals.permittedResources[0],
       chunkId,
-      data: Uint8Array.from(chunk),
+      data: new Uint8Array(chunk),
     })
 
     if (!result.success) {
