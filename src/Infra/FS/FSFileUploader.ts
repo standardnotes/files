@@ -8,7 +8,7 @@ import { UploadChunkResult } from '../../Domain/Upload/UploadChunkResult'
 @injectable()
 export class FSFileUploader implements FileUploaderInterface {
   async uploadFileChunk(dto: { uploadId: string; data: Uint8Array; filePath: string; chunkId: number }): Promise<string> {
-    await promises.appendFile(dto.filePath, dto.data, { flag: 'a+' })
+    await promises.appendFile(`${__dirname}/tmp/${dto.filePath}`, dto.data)
 
     return dto.uploadId
   }
