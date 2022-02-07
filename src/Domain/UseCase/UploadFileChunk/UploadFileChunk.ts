@@ -49,7 +49,7 @@ export class UploadFileChunk implements UseCaseInterface {
         success: true,
       }
     } catch (error) {
-      this.logger.error(`Could not upload file chunk for resource: ${dto.resource}`)
+      this.logger.error(`Could not upload file chunk for resource: ${dto.resource} - ${error.message}`)
 
       return {
         success: false,

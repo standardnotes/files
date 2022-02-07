@@ -36,28 +36,28 @@ export class FilesController extends BaseHttpController {
       return this.badRequest(result.message)
     }
 
-    return this.json({ uploadId: result.uploadId })
+    return this.json({ success: true, uploadId: result.uploadId })
   }
 
   @httpPost('/upload/chunk')
-  public async uploadChunk(request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.OkResult> {
-    const chunkId = request.headers['x-upload-chunk-id']
-    if (chunkId === undefined) {
-      return this.badRequest('Missing x-upload-chunk-id header')
+  public async uploadChunk(request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
+    const { chunkId, chunk } = request.body
+    if (chunkId === undefined || chunk === undefined) {
+      return this.badRequest('Missing required chunk parameters')
     }
 
     const result = await this.uploadFileChunk.execute({
       userUuid: response.locals.userUuid,
       resource: response.locals.permittedResources[0],
-      chunkId: +chunkId,
-      data: request.body,
+      chunkId,
+      data: chunk,
     })
 
     if (!result.success) {
       return this.badRequest(result.message)
     }
 
-    return this.ok()
+    return this.json({ success: true, message: 'Chunk uploaded successfully' })
   }
 
   @httpPost('/upload/close-session')
@@ -71,7 +71,7 @@ export class FilesController extends BaseHttpController {
       return this.badRequest(result.message)
     }
 
-    return this.json({ message: 'File uploaded successfully' })
+    return this.json({ success: true, message: 'File uploaded successfully' })
   }
 
   @httpGet('/')
