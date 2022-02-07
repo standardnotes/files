@@ -10,6 +10,7 @@ const TYPES = {
   StreamDownloadFile: Symbol.for('StreamDownloadFile'),
   CreateUploadSession: Symbol.for('CreateUploadSession'),
   FinishUploadSession: Symbol.for('FinishUploadSession'),
+  GetFileMetadata: Symbol.for('GetFileMetadata'),
 
   // services
   ValetTokenDecoder: Symbol.for('ValetTokenDecoder'),

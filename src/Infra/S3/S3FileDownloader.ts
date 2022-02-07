@@ -12,10 +12,20 @@ export class S3FileDownloader implements FileDownloaderInterface {
   ) {
   }
 
-  createDownloadStream(filePath: string): Readable {
+  createDownloadStream(filePath: string, startRange: number, endRange: number): Readable {
     return this.s3Client.getObject({
       Bucket: this.s3BuckeName,
       Key: filePath,
+      Range: `bytes=${startRange}-${endRange}`,
     }).createReadStream()
+  }
+
+  async getFileSize(filePath: string): Promise<number> {
+    const head = await this.s3Client.headObject({
+      Bucket: this.s3BuckeName,
+      Key: filePath,
+    }).promise()
+
+    return head.ContentLength as number
   }
 }

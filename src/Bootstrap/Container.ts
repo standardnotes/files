@@ -23,6 +23,7 @@ import { CreateUploadSession } from '../Domain/UseCase/CreateUploadSession/Creat
 import { FinishUploadSession } from '../Domain/UseCase/FinishUploadSession/FinishUploadSession'
 import { UploadRepositoryInterface } from '../Domain/Upload/UploadRepositoryInterface'
 import { RedisUploadRepository } from '../Infra/Redis/RedisUploadRepository'
+import { GetFileMetadata } from '../Domain/UseCase/GetFileMetadata/GetFileMetadata'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -70,6 +71,7 @@ export class ContainerConfigLoader {
     container.bind<StreamDownloadFile>(TYPES.StreamDownloadFile).to(StreamDownloadFile)
     container.bind<CreateUploadSession>(TYPES.CreateUploadSession).to(CreateUploadSession)
     container.bind<FinishUploadSession>(TYPES.FinishUploadSession).to(FinishUploadSession)
+    container.bind<GetFileMetadata>(TYPES.GetFileMetadata).to(GetFileMetadata)
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)

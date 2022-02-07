@@ -8,12 +8,15 @@ import { UploadFileChunk } from '../Domain/UseCase/UploadFileChunk/UploadFileChu
 import { Request, Response } from 'express'
 import { Writable, Readable } from 'stream'
 import { FilesController } from './FilesController'
+import { GetFileMetadata } from '../Domain/UseCase/GetFileMetadata/GetFileMetadata'
+import { results } from 'inversify-express-utils'
 
 describe('FilesController', () => {
   let uploadFileChunk: UploadFileChunk
   let createUploadSession: CreateUploadSession
   let finishUploadSession: FinishUploadSession
   let streamDownloadFile: StreamDownloadFile
+  let getFileMetadata: GetFileMetadata
   let request: Request
   let response: Response
   let readStream: Readable
@@ -23,6 +26,7 @@ describe('FilesController', () => {
     createUploadSession,
     finishUploadSession,
     streamDownloadFile,
+    getFileMetadata,
   )
 
   beforeEach(() => {
@@ -30,7 +34,7 @@ describe('FilesController', () => {
     readStream.pipe = jest.fn().mockReturnValue(new Writable())
 
     streamDownloadFile = {} as jest.Mocked<StreamDownloadFile>
-    streamDownloadFile.execute = jest.fn().mockReturnValue({ readStream })
+    streamDownloadFile.execute = jest.fn().mockReturnValue({ success: true, readStream })
 
     uploadFileChunk = {} as jest.Mocked<UploadFileChunk>
     uploadFileChunk.execute = jest.fn().mockReturnValue({ success: true })
@@ -41,6 +45,9 @@ describe('FilesController', () => {
     finishUploadSession = {} as jest.Mocked<FinishUploadSession>
     finishUploadSession.execute = jest.fn().mockReturnValue({ success: true })
 
+    getFileMetadata = {} as jest.Mocked<GetFileMetadata>
+    getFileMetadata.execute = jest.fn().mockReturnValue({ success: true, size: 555_555 })
+
     request = {
       body: {},
       headers: {},
@@ -50,13 +57,104 @@ describe('FilesController', () => {
     } as jest.Mocked<Response>
     response.locals.userUuid = '1-2-3'
     response.locals.permittedResources = ['2-3-4']
-    response.setHeader = jest.fn()
+    response.writeHead = jest.fn()
   })
 
   it('should return a writable stream upon file download', async () => {
-    const result = await createController().download(request, response)
+    request.headers['range'] = 'bytes=0-'
+
+    const result = await createController().download(request, response) as () => Writable
+
+    expect(response.writeHead).toHaveBeenCalledWith(206, {
+      'Accept-Ranges': 'bytes',
+      'Content-Length': 100000,
+      'Content-Range': 'bytes 0-99999/555555',
+      'Content-Type': 'application/octet-stream',
+    })
 
     expect(result()).toBeInstanceOf(Writable)
+  })
+
+  it('should return proper byte range on consecutive calls', async () => {
+    request.headers['range'] = 'bytes=0-'
+
+    await createController().download(request, response) as () => Writable
+
+    request.headers['range'] = 'bytes=100000-'
+
+    await createController().download(request, response) as () => Writable
+
+    expect(response.writeHead).toHaveBeenNthCalledWith(1, 206, {
+      'Accept-Ranges': 'bytes',
+      'Content-Length': 100000,
+      'Content-Range': 'bytes 0-99999/555555',
+      'Content-Type': 'application/octet-stream',
+    })
+
+    expect(response.writeHead).toHaveBeenNthCalledWith(2, 206, {
+      'Accept-Ranges': 'bytes',
+      'Content-Length': 100000,
+      'Content-Range': 'bytes 100000-199999/555555',
+      'Content-Type': 'application/octet-stream',
+    })
+  })
+
+  it('should return a writable stream with custom chunk size', async () => {
+    request.headers['x-chunk-size'] = '50000'
+    request.headers['range'] = 'bytes=0-'
+
+    const result = await createController().download(request, response) as () => Writable
+
+    expect(response.writeHead).toHaveBeenCalledWith(206, {
+      'Accept-Ranges': 'bytes',
+      'Content-Length': 50000,
+      'Content-Range': 'bytes 0-49999/555555',
+      'Content-Type': 'application/octet-stream',
+    })
+
+    expect(result()).toBeInstanceOf(Writable)
+  })
+
+  it('should default to maximum chunk size if custom chunk size is too large', async () => {
+    request.headers['x-chunk-size'] = '200000'
+    request.headers['range'] = 'bytes=0-'
+
+    const result = await createController().download(request, response) as () => Writable
+
+    expect(response.writeHead).toHaveBeenCalledWith(206, {
+      'Accept-Ranges': 'bytes',
+      'Content-Length': 100000,
+      'Content-Range': 'bytes 0-99999/555555',
+      'Content-Type': 'application/octet-stream',
+    })
+
+    expect(result()).toBeInstanceOf(Writable)
+  })
+
+  it('should not return a writable stream if bytes range is not provided', async () => {
+    const httpResponse = await createController().download(request, response)
+
+    expect(httpResponse).toBeInstanceOf(results.BadRequestErrorMessageResult)
+  })
+
+  it('should not return a writable stream if getting file metadata fails', async () => {
+    request.headers['range'] = 'bytes=0-'
+
+    getFileMetadata.execute = jest.fn().mockReturnValue({ success: false, message: 'error' })
+
+    const httpResponse = await createController().download(request, response)
+
+    expect(httpResponse).toBeInstanceOf(results.BadRequestErrorMessageResult)
+  })
+
+  it('should not return a writable stream if creating download stream fails', async () => {
+    request.headers['range'] = 'bytes=0-'
+
+    streamDownloadFile.execute = jest.fn().mockReturnValue({ success: false, message: 'error' })
+
+    const httpResponse = await createController().download(request, response)
+
+    expect(httpResponse).toBeInstanceOf(results.BadRequestErrorMessageResult)
   })
 
   it('should create an upload session', async () => {
