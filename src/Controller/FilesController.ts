@@ -41,11 +41,16 @@ export class FilesController extends BaseHttpController {
 
   @httpPost('/upload/chunk')
   public async uploadChunk(request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.OkResult> {
+    const chunkId = request.headers['x-upload-chunk-id']
+    if (chunkId === undefined) {
+      return this.badRequest('Missing x-upload-chunk-id header')
+    }
+
     const result = await this.uploadFileChunk.execute({
       userUuid: response.locals.userUuid,
       resource: response.locals.permittedResources[0],
-      chunkId: +request.body.chunkId,
-      data: request.body.data,
+      chunkId: +chunkId,
+      data: request.body,
     })
 
     if (!result.success) {
