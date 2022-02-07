@@ -54,7 +54,7 @@ export class FinishUploadSession implements UseCaseInterface {
         success: true,
       }
     } catch (error) {
-      this.logger.error(`Could not finish upload session for resource: ${dto.resource}`)
+      this.logger.error(`Could not finish upload session for resource: ${dto.resource} - ${error.message}`)
 
       return {
         success: false,

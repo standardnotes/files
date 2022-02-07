@@ -96,8 +96,8 @@ describe('FilesController', () => {
   })
 
   it('should upload a chunk to an upload session', async () => {
-    request.headers['x-upload-chunk-id'] = '2'
-    request.body = new Uint8Array([123])
+    request.body.chunkId = 2
+    request.body.chunk = new Uint8Array([123])
 
     await createController().uploadChunk(request, response)
 
@@ -110,8 +110,8 @@ describe('FilesController', () => {
   })
 
   it('should return bad request if chunk could not be uploaded', async () => {
-    request.headers['x-upload-chunk-id'] = '2'
-    request.body = new Uint8Array([123])
+    request.body.chunkId = 2
+    request.body.chunk = new Uint8Array([123])
     uploadFileChunk.execute = jest.fn().mockReturnValue({ success: false })
 
     const httpResponse = await createController().uploadChunk(request, response)
@@ -120,8 +120,17 @@ describe('FilesController', () => {
     expect(result.statusCode).toEqual(400)
   })
 
-  it('should return bad request if chunk id is missing from headers', async () => {
-    request.body = new Uint8Array([123])
+  it('should return bad request if chunk id is missing', async () => {
+    request.body.chunk = new Uint8Array([123])
+
+    const httpResponse = await createController().uploadChunk(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(result.statusCode).toEqual(400)
+  })
+
+  it('should return bad request if chunk is missing', async () => {
+    request.body.chunkId = 2
 
     const httpResponse = await createController().uploadChunk(request, response)
     const result = await httpResponse.executeAsync()
