@@ -20,6 +20,13 @@ services:
     volumes:
       - .:/var/www
 
+  cache:
+    image: redis:6.0-alpine
+    expose:
+      - 6379
+    networks:
+      - files
+
 networks:
   files:
     name: files

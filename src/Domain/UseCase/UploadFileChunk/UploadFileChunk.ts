@@ -19,7 +19,7 @@ export class UploadFileChunk implements UseCaseInterface {
 
   async execute(dto: UploadFileChunkDTO): Promise<UploadFileChunkResponse> {
     try {
-      this.logger.debug(`Starting upload file chunk ${dto.chunkId} for resource: ${dto.resource}`)
+      this.logger.debug(`Starting upload file chunk ${dto.chunkId} with ${dto.data.byteLength} bytes for resource: ${dto.resource}`)
 
       const filePath = `${dto.userUuid}/${dto.resource}`
 
