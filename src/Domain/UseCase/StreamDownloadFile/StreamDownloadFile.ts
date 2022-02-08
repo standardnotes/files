@@ -1,4 +1,5 @@
 import { inject, injectable } from 'inversify'
+import { Logger } from 'winston'
 import TYPES from '../../../Bootstrap/Types'
 import { FileDownloaderInterface } from '../../Services/FileDownloaderInterface'
 import { UseCaseInterface } from '../UseCaseInterface'
@@ -9,14 +10,29 @@ import { StreamDownloadFileResponse } from './StreamDownloadFileResponse'
 export class StreamDownloadFile implements UseCaseInterface {
   constructor(
     @inject(TYPES.FileDownloader) private fileDownloader: FileDownloaderInterface,
+    @inject(TYPES.Logger) private logger: Logger,
   ) {
   }
 
   async execute(dto: StreamDownloadFileDTO): Promise<StreamDownloadFileResponse> {
-    const readStream = this.fileDownloader.createDownloadStream(`${dto.userUuid}/${dto.resource}`)
+    try {
+      const readStream = this.fileDownloader.createDownloadStream(
+        `${dto.userUuid}/${dto.resource}`,
+        dto.startRange,
+        dto.endRange
+      )
 
-    return {
-      readStream,
+      return {
+        success: true,
+        readStream,
+      }
+    } catch (error) {
+      this.logger.error(`Could not create a download stream for resource: ${dto.userUuid}/${dto.resource}`)
+
+      return {
+        success: false,
+        message: 'Could not create download stream',
+      }
     }
   }
 }
