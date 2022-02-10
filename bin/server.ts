@@ -57,7 +57,9 @@ void container.load().then(container => {
     /* eslint-enable */
     app.use(json({ limit: '50mb' }))
     app.use(urlencoded({ extended: true, limit: '50mb', parameterLimit: 5000 }))
-    app.use(cors())
+    app.use(cors({
+      exposedHeaders: ['Content-Range', 'Accept-Ranges'],
+    }))
 
     if (env.get('SENTRY_DSN', true)) {
       Sentry.init({
