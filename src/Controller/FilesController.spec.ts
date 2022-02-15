@@ -20,6 +20,7 @@ describe('FilesController', () => {
   let request: Request
   let response: Response
   let readStream: Readable
+  const maxChunkBytes = 100_000
 
   const createController = () => new FilesController(
     uploadFileChunk,
@@ -27,6 +28,7 @@ describe('FilesController', () => {
     finishUploadSession,
     streamDownloadFile,
     getFileMetadata,
+    maxChunkBytes,
   )
 
   beforeEach(() => {
