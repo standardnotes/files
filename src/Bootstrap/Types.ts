@@ -34,6 +34,7 @@ const TYPES = {
   VALET_TOKEN_SECRET: Symbol.for('VALET_TOKEN_SECRET'),
   REDIS_URL: Symbol.for('REDIS_URL'),
   REDIS_EVENTS_CHANNEL: Symbol.for('REDIS_EVENTS_CHANNEL'),
+  MAX_CHUNK_BYTES: Symbol.for('MAX_CHUNK_BYTES'),
   VERSION: Symbol.for('VERSION'),
 }
 

@@ -17,14 +17,13 @@ import { GetFileMetadata } from '../Domain/UseCase/GetFileMetadata/GetFileMetada
 
 @controller('/v1/files', TYPES.ValetTokenAuthMiddleware)
 export class FilesController extends BaseHttpController {
-  private readonly MAX_CHUNK_SIZE = 100_000
-
   constructor(
     @inject(TYPES.UploadFileChunk) private uploadFileChunk: UploadFileChunk,
     @inject(TYPES.CreateUploadSession) private createUploadSession: CreateUploadSession,
     @inject(TYPES.FinishUploadSession) private finishUploadSession: FinishUploadSession,
     @inject(TYPES.StreamDownloadFile) private streamDownloadFile: StreamDownloadFile,
     @inject(TYPES.GetFileMetadata) private getFileMetadata: GetFileMetadata,
+    @inject(TYPES.MAX_CHUNK_BYTES) private maxChunkBytes: number,
   ) {
     super()
   }
@@ -86,8 +85,8 @@ export class FilesController extends BaseHttpController {
     }
 
     let chunkSize = +(request.headers['x-chunk-size'] as string)
-    if (!chunkSize || chunkSize > this.MAX_CHUNK_SIZE) {
-      chunkSize = this.MAX_CHUNK_SIZE
+    if (!chunkSize || chunkSize > this.maxChunkBytes) {
+      chunkSize = this.maxChunkBytes
     }
 
     const fileMetadata = await this.getFileMetadata.execute({

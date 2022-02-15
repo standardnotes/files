@@ -84,6 +84,7 @@ export class ContainerConfigLoader {
     container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION', true))
     container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
     container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
+    container.bind(TYPES.MAX_CHUNK_BYTES).toConstantValue(+env.get('MAX_CHUNK_BYTES'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
 
     // services
