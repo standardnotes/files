@@ -43,6 +43,8 @@ export class FSFileUploader implements FileUploaderInterface {
     for (const orderedKey of orderedKeys) {
       await promises.appendFile(`${__dirname}/tmp/${filePath}`, fileChunks.get(orderedKey) as Uint8Array)
     }
+
+    this.inMemoryChunks.delete(uploadId)
   }
 
   async createUploadSession(filePath: string): Promise<string> {
