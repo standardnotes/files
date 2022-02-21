@@ -56,7 +56,9 @@ export class ContainerConfigLoader {
       container.bind<FileUploaderInterface>(TYPES.FileUploader).to(S3FileUploader)
     } else {
       container.bind<FileDownloaderInterface>(TYPES.FileDownloader).to(FSFileDownloader)
-      container.bind<FileUploaderInterface>(TYPES.FileUploader).to(FSFileUploader)
+      container.bind<FileUploaderInterface>(TYPES.FileUploader).toConstantValue(new FSFileUploader(
+        container.get(TYPES.Logger),
+      ))
     }
 
     if (env.get('SNS_AWS_REGION', true)) {
