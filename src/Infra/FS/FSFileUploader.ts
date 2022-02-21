@@ -1,15 +1,18 @@
 import { promises } from 'fs'
 import { dirname } from 'path'
-import { injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 
 import { FileUploaderInterface } from '../../Domain/Services/FileUploaderInterface'
 import { UploadChunkResult } from '../../Domain/Upload/UploadChunkResult'
+import { Logger } from 'winston'
+import TYPES from '../../Bootstrap/Types'
 
 @injectable()
 export class FSFileUploader implements FileUploaderInterface {
   private inMemoryChunks: Map<string, Map<number, Uint8Array>>
 
   constructor(
+    @inject(TYPES.Logger) private logger: Logger,
   ) {
     this.inMemoryChunks = new Map<string, Map<number, Uint8Array>>()
   }
@@ -21,12 +24,16 @@ export class FSFileUploader implements FileUploaderInterface {
 
     const fileChunks = this.inMemoryChunks.get(dto.uploadId) as Map<number, Uint8Array>
 
+    this.logger.debug(`FS storing file chunk ${dto.chunkId} in memory for ${dto.uploadId}`)
+
     fileChunks.set(dto.chunkId, dto.data)
 
     return dto.uploadId
   }
 
   async finishUploadSession(uploadId: string, filePath: string, _uploadChunkResults: UploadChunkResult[]): Promise<void> {
+    this.logger.debug(`FS finishing upload for ${uploadId}`)
+
     const fileChunks = this.inMemoryChunks.get(uploadId)
     if (!fileChunks) {
       throw new Error(`Could not find chunks for upload ${uploadId}`)
