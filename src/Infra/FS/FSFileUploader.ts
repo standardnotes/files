@@ -7,14 +7,35 @@ import { UploadChunkResult } from '../../Domain/Upload/UploadChunkResult'
 
 @injectable()
 export class FSFileUploader implements FileUploaderInterface {
+  private inMemoryChunks: Map<string, Map<number, Uint8Array>>
+
+  constructor(
+  ) {
+    this.inMemoryChunks = new Map<string, Map<number, Uint8Array>>()
+  }
+
   async uploadFileChunk(dto: { uploadId: string; data: Uint8Array; filePath: string; chunkId: number }): Promise<string> {
-    await promises.appendFile(`${__dirname}/tmp/${dto.filePath}`, dto.data)
+    if (!this.inMemoryChunks.has(dto.uploadId)) {
+      this.inMemoryChunks.set(dto.uploadId, new Map<number, Uint8Array>())
+    }
+
+    const fileChunks = this.inMemoryChunks.get(dto.uploadId) as Map<number, Uint8Array>
+
+    fileChunks.set(dto.chunkId, dto.data)
 
     return dto.uploadId
   }
 
-  async finishUploadSession(_uploadId: string, _filePath: string, _uploadChunkResults: UploadChunkResult[]): Promise<void> {
-    return
+  async finishUploadSession(uploadId: string, filePath: string, _uploadChunkResults: UploadChunkResult[]): Promise<void> {
+    const fileChunks = this.inMemoryChunks.get(uploadId)
+    if (!fileChunks) {
+      throw new Error(`Could not find chunks for upload ${uploadId}`)
+    }
+
+    const orderedKeys = [...fileChunks.keys()].sort()
+    for (const orderedKey of orderedKeys) {
+      await promises.appendFile(`${__dirname}/tmp/${filePath}`, fileChunks.get(orderedKey) as Uint8Array)
+    }
   }
 
   async createUploadSession(filePath: string): Promise<string> {
