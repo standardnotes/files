@@ -39,7 +39,7 @@ export class FSFileUploader implements FileUploaderInterface {
       throw new Error(`Could not find chunks for upload ${uploadId}`)
     }
 
-    const orderedKeys = [...fileChunks.keys()].sort()
+    const orderedKeys = [...fileChunks.keys()].sort((a, b) => a - b)
     for (const orderedKey of orderedKeys) {
       await promises.appendFile(`${__dirname}/tmp/${filePath}`, fileChunks.get(orderedKey) as Uint8Array)
     }
