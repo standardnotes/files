@@ -14,7 +14,7 @@ describe('RedisUploadRepository', () => {
     redisClient.setex = jest.fn()
     redisClient.get = jest.fn().mockReturnValue('123')
     redisClient.lpush = jest.fn()
-    redisClient.lrange = jest.fn().mockReturnValue(['{"ETag":"123","PartNumber":3}'])
+    redisClient.lrange = jest.fn().mockReturnValue(['{"ETag":"123","PartNumber":3}', '{"ETag":"123","PartNumber":1}'])
   })
 
   it('should store an upload session', async () => {
@@ -43,6 +43,10 @@ describe('RedisUploadRepository', () => {
 
   it('should retrieve upload chunk results', async () => {
     expect(await createRepository().retrieveUploadChunkResults('123')).toEqual([
+      {
+        ETag: '123',
+        PartNumber: 1,
+      },
       {
         ETag: '123',
         PartNumber: 3,

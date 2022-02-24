@@ -34,11 +34,15 @@ export class RedisUploadRepository implements UploadRepositoryInterface {
 
   async retrieveUploadChunkResults(uploadId: string): Promise<UploadChunkResult[]> {
     const stringifiedUploadChunkResults = await this.redisClient.lrange(`${this.UPLOAD_CHUNKS_PREFIX}:${uploadId}`, 0, -1)
-    const uploadChunksResults = []
+    const uploadChunksResults: UploadChunkResult[] = []
     for (const stringifiedUploadChunkResult of stringifiedUploadChunkResults) {
       uploadChunksResults.push(JSON.parse(stringifiedUploadChunkResult))
     }
 
-    return uploadChunksResults
+    const sortedResults = uploadChunksResults.sort((a, b) => {
+      return a.PartNumber - b.PartNumber
+    })
+
+    return sortedResults
   }
 }
