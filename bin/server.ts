@@ -10,7 +10,7 @@ import '../src/Controller/FilesController'
 
 import * as helmet from 'helmet'
 import * as cors from 'cors'
-import { urlencoded, json, Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } from 'express'
+import { urlencoded, json, raw, Request, Response, NextFunction, RequestHandler, ErrorRequestHandler } from 'express'
 import * as winston from 'winston'
 
 import { InversifyExpressServer } from 'inversify-express-utils'
@@ -56,6 +56,7 @@ void container.load().then(container => {
     }))
     /* eslint-enable */
     app.use(json({ limit: '50mb' }))
+    app.use(raw({ limit: '50mb', type: 'application/octet-stream' }))
     app.use(urlencoded({ extended: true, limit: '50mb' }))
     app.use(cors({
       exposedHeaders: ['Content-Range', 'Accept-Ranges'],
