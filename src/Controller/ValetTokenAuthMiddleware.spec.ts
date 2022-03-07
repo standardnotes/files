@@ -44,6 +44,31 @@ describe('ValetTokenAuthMiddleware', () => {
   })
 
   it('should authorize user with a valet token', async () => {
+    tokenDecoder.decodeToken = jest.fn().mockReturnValue({
+      userUuid: '1-2-3',
+      permittedResources: [ '1-2-3/2-3-4' ],
+      permittedOperation: 'write',
+      uploadBytesLimit: -1,
+      uploadBytesUsed: 80,
+    })
+
+    request.headers['x-valet-token'] = 'valet-token'
+    request.headers['content-length'] = '30'
+
+    await createMiddleware().handler(request, response, next)
+
+    expect(response.locals).toEqual({
+      userUuid: '1-2-3',
+      permittedOperation: 'write',
+      permittedResources: [
+        '1-2-3/2-3-4',
+      ],
+    })
+
+    expect(next).toHaveBeenCalled()
+  })
+
+  it('should authorize user with unlimited upload with a valet token', async () => {
     request.headers['x-valet-token'] = 'valet-token'
     request.headers['content-length'] = '10'
 
