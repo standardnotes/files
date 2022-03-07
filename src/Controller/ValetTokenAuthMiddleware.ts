@@ -71,6 +71,10 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
       return false
     }
 
+    if (valetTokenData.uploadBytesLimit === -1) {
+      return false
+    }
+
     const remainingUploadSpace = valetTokenData.uploadBytesLimit - valetTokenData.uploadBytesUsed
 
     return remainingUploadSpace - contentLength <= 0
