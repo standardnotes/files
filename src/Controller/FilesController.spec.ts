@@ -10,6 +10,7 @@ import { Writable, Readable } from 'stream'
 import { FilesController } from './FilesController'
 import { GetFileMetadata } from '../Domain/UseCase/GetFileMetadata/GetFileMetadata'
 import { results } from 'inversify-express-utils'
+import { RemoveFile } from '../Domain/UseCase/RemoveFile/RemoveFile'
 
 describe('FilesController', () => {
   let uploadFileChunk: UploadFileChunk
@@ -17,6 +18,7 @@ describe('FilesController', () => {
   let finishUploadSession: FinishUploadSession
   let streamDownloadFile: StreamDownloadFile
   let getFileMetadata: GetFileMetadata
+  let removeFile: RemoveFile
   let request: Request
   let response: Response
   let readStream: Readable
@@ -28,6 +30,7 @@ describe('FilesController', () => {
     finishUploadSession,
     streamDownloadFile,
     getFileMetadata,
+    removeFile,
     maxChunkBytes,
   )
 
@@ -49,6 +52,9 @@ describe('FilesController', () => {
 
     getFileMetadata = {} as jest.Mocked<GetFileMetadata>
     getFileMetadata.execute = jest.fn().mockReturnValue({ success: true, size: 555_555 })
+
+    removeFile = {} as jest.Mocked<RemoveFile>
+    removeFile.execute = jest.fn().mockReturnValue({ success: true })
 
     request = {
       body: {},
@@ -190,6 +196,24 @@ describe('FilesController', () => {
     finishUploadSession.execute = jest.fn().mockReturnValue({ success: false })
 
     const httpResponse = await createController().finishUpload(request, response)
+    const result = await httpResponse.executeAsync()
+
+    expect(result.statusCode).toEqual(400)
+  })
+
+  it('should remove a file', async () => {
+    await createController().remove(request, response)
+
+    expect(removeFile.execute).toHaveBeenCalledWith({
+      resource: '2-3-4',
+      userUuid: '1-2-3',
+    })
+  })
+
+  it('should return bad request if file removal could not be completed', async () => {
+    removeFile.execute = jest.fn().mockReturnValue({ success: false })
+
+    const httpResponse = await createController().remove(request, response)
     const result = await httpResponse.executeAsync()
 
     expect(result.statusCode).toEqual(400)
