@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify'
 import * as AWS from 'aws-sdk'
 import { Readable } from 'stream'
+
 import TYPES from '../../Bootstrap/Types'
 import { FileDownloaderInterface } from '../../Domain/Services/FileDownloaderInterface'
 

@@ -1,6 +1,7 @@
 import {
   BaseHttpController,
   controller,
+  httpDelete,
   httpGet,
   httpPost,
   results,
@@ -14,6 +15,7 @@ import { StreamDownloadFile } from '../Domain/UseCase/StreamDownloadFile/StreamD
 import { CreateUploadSession } from '../Domain/UseCase/CreateUploadSession/CreateUploadSession'
 import { FinishUploadSession } from '../Domain/UseCase/FinishUploadSession/FinishUploadSession'
 import { GetFileMetadata } from '../Domain/UseCase/GetFileMetadata/GetFileMetadata'
+import { RemoveFile } from '../Domain/UseCase/RemoveFile/RemoveFile'
 
 @controller('/v1/files', TYPES.ValetTokenAuthMiddleware)
 export class FilesController extends BaseHttpController {
@@ -23,13 +25,14 @@ export class FilesController extends BaseHttpController {
     @inject(TYPES.FinishUploadSession) private finishUploadSession: FinishUploadSession,
     @inject(TYPES.StreamDownloadFile) private streamDownloadFile: StreamDownloadFile,
     @inject(TYPES.GetFileMetadata) private getFileMetadata: GetFileMetadata,
+    @inject(TYPES.RemoveFile) private removeFile: RemoveFile,
     @inject(TYPES.MAX_CHUNK_BYTES) private maxChunkBytes: number,
   ) {
     super()
   }
 
   @httpPost('/upload/create-session')
-  public async startUpload(_request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
+  async startUpload(_request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
     const result = await this.createUploadSession.execute({
       userUuid: response.locals.userUuid,
       resource: response.locals.permittedResources[0],
@@ -43,7 +46,7 @@ export class FilesController extends BaseHttpController {
   }
 
   @httpPost('/upload/chunk')
-  public async uploadChunk(request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
+  async uploadChunk(request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
     const chunkId = +(request.headers['x-chunk-id'] as string)
     if (!chunkId) {
       return this.badRequest('Missing x-chunk-id header in request.')
@@ -77,8 +80,22 @@ export class FilesController extends BaseHttpController {
     return this.json({ success: true, message: 'File uploaded successfully' })
   }
 
+  @httpDelete('/')
+  async remove(_request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
+    const result = await this.removeFile.execute({
+      userUuid: response.locals.userUuid,
+      resource: response.locals.permittedResources[0],
+    })
+
+    if (!result.success) {
+      return this.badRequest(result.message)
+    }
+
+    return this.json({ success: true, message: 'File removed successfully' })
+  }
+
   @httpGet('/')
-  public async download(request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | (() => Writable)> {
+  async download(request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | (() => Writable)> {
     const range = request.headers['range']
     if (!range) {
       return this.badRequest('File download requires range header to be set.')

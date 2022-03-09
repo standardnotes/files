@@ -67,7 +67,7 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
   }
 
   private userHasNoSpaceToUpload(valetTokenData: ValetTokenData, contentLength: number) {
-    if (valetTokenData.permittedOperation === 'read') {
+    if (valetTokenData.permittedOperation !== 'write') {
       return false
     }
 

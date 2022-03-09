@@ -24,6 +24,10 @@ import { FinishUploadSession } from '../Domain/UseCase/FinishUploadSession/Finis
 import { UploadRepositoryInterface } from '../Domain/Upload/UploadRepositoryInterface'
 import { RedisUploadRepository } from '../Infra/Redis/RedisUploadRepository'
 import { GetFileMetadata } from '../Domain/UseCase/GetFileMetadata/GetFileMetadata'
+import { FileRemoverInterface } from '../Domain/Services/FileRemoverInterface'
+import { S3FileRemover } from '../Infra/S3/S3FileRemover'
+import { FSFileRemover } from '../Infra/FS/FSFileRemover'
+import { RemoveFile } from '../Domain/UseCase/RemoveFile/RemoveFile'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -54,11 +58,13 @@ export class ContainerConfigLoader {
       container.bind<AWS.S3>(TYPES.S3).toConstantValue(s3Client)
       container.bind<FileDownloaderInterface>(TYPES.FileDownloader).to(S3FileDownloader)
       container.bind<FileUploaderInterface>(TYPES.FileUploader).to(S3FileUploader)
+      container.bind<FileRemoverInterface>(TYPES.FileRemover).to(S3FileRemover)
     } else {
       container.bind<FileDownloaderInterface>(TYPES.FileDownloader).to(FSFileDownloader)
       container.bind<FileUploaderInterface>(TYPES.FileUploader).toConstantValue(new FSFileUploader(
         container.get(TYPES.Logger),
       ))
+      container.bind<FileRemoverInterface>(TYPES.FileRemover).to(FSFileRemover)
     }
 
     if (env.get('SNS_AWS_REGION', true)) {
@@ -74,6 +80,7 @@ export class ContainerConfigLoader {
     container.bind<CreateUploadSession>(TYPES.CreateUploadSession).to(CreateUploadSession)
     container.bind<FinishUploadSession>(TYPES.FinishUploadSession).to(FinishUploadSession)
     container.bind<GetFileMetadata>(TYPES.GetFileMetadata).to(GetFileMetadata)
+    container.bind<RemoveFile>(TYPES.RemoveFile).to(RemoveFile)
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)

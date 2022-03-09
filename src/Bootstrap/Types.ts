@@ -11,6 +11,7 @@ const TYPES = {
   CreateUploadSession: Symbol.for('CreateUploadSession'),
   FinishUploadSession: Symbol.for('FinishUploadSession'),
   GetFileMetadata: Symbol.for('GetFileMetadata'),
+  RemoveFile: Symbol.for('RemoveFile'),
 
   // services
   ValetTokenDecoder: Symbol.for('ValetTokenDecoder'),
@@ -19,6 +20,7 @@ const TYPES = {
   DomainEventPublisher: Symbol.for('DomainEventPublisher'),
   FileUploader: Symbol.for('FileUploader'),
   FileDownloader: Symbol.for('FileDownloader'),
+  FileRemover: Symbol.for('FileRemover'),
 
   // repositories
   UploadRepository: Symbol.for('UploadRepository'),

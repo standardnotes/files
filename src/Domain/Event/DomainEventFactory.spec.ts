@@ -40,4 +40,29 @@ describe('DomainEventFactory', () => {
         type: 'FILE_UPLOADED',
       })
   })
+
+  it('should create a FILE_REMOVED event', () => {
+    expect(createFactory().createFileRemovedEvent({
+      fileByteSize: 123,
+      fileName: '2-3-4',
+      filePath: '1-2-3/2-3-4',
+      userUuid: '1-2-3',
+    }))
+      .toEqual({
+        createdAt: new Date(1),
+        meta: {
+          correlation: {
+            userIdentifier: '1-2-3',
+            userIdentifierType: 'uuid',
+          },
+        },
+        payload: {
+          fileByteSize: 123,
+          fileName: '2-3-4',
+          filePath: '1-2-3/2-3-4',
+          userUuid: '1-2-3',
+        },
+        type: 'FILE_REMOVED',
+      })
+  })
 })
