@@ -48,6 +48,10 @@ export class FSFileUploader implements FileUploaderInterface {
   }
 
   async createUploadSession(filePath: string): Promise<string> {
-    return promises.mkdir(dirname(`${__dirname}/tmp/${filePath}`), { recursive: true })
+    const fullPath = `${__dirname}/tmp/${filePath}`
+
+    await promises.mkdir(dirname(fullPath), { recursive: true })
+
+    return fullPath
   }
 }
