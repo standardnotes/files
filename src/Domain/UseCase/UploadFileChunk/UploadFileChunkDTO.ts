@@ -4,5 +4,5 @@ export type UploadFileChunkDTO = {
   data: Uint8Array
   chunkId: ChunkId
   userUuid: string
-  resource: string
+  resourceRemoteIdentifier: string
 }

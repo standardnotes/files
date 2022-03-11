@@ -64,7 +64,12 @@ describe('FilesController', () => {
       locals: {},
     } as jest.Mocked<Response>
     response.locals.userUuid = '1-2-3'
-    response.locals.permittedResources = ['2-3-4']
+    response.locals.permittedResources = [
+      {
+        remoteIdentifier: '2-3-4',
+        unencryptedFileSize: 123,
+      },
+    ]
     response.writeHead = jest.fn()
   })
 
@@ -169,7 +174,7 @@ describe('FilesController', () => {
     await createController().startUpload(request, response)
 
     expect(createUploadSession.execute).toHaveBeenCalledWith({
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
   })
@@ -187,7 +192,7 @@ describe('FilesController', () => {
     await createController().finishUpload(request, response)
 
     expect(finishUploadSession.execute).toHaveBeenCalledWith({
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
   })
@@ -205,7 +210,7 @@ describe('FilesController', () => {
     await createController().remove(request, response)
 
     expect(removeFile.execute).toHaveBeenCalledWith({
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
   })
@@ -228,7 +233,7 @@ describe('FilesController', () => {
     expect(uploadFileChunk.execute).toHaveBeenCalledWith({
       chunkId: 2,
       data: Buffer.from([123]),
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
   })

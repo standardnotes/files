@@ -713,7 +713,7 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@standardnotes/auth@^3.15.2", "@standardnotes/auth@^3.15.3":
+"@standardnotes/auth@^3.15.3":
   version "3.15.3"
   resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-3.15.3.tgz#bf77332e0ac3d846acc45f25083459e42f4a4374"
   integrity sha512-16wgMl0qmq8w+HUktfQ7ODoprkngSs0vsSF5G9aHM1L+lFMwlGeVOztHH2zwG91pFkl7BaK6LcEimoYiml6VAw==
@@ -725,6 +725,14 @@
   version "3.17.3"
   resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-3.17.3.tgz#a00f10faa0fb2a7dd76509d3b678f85818aad63c"
   integrity sha512-tb5ylXuDBPhgeZZynNsMk83N74NMMV9z6M9hyrwuK5HbKWM5r5L9U8lwFawG8flqTKpYzPeWxmaRFZT/5qR22Q==
+  dependencies:
+    "@standardnotes/common" "^1.15.3"
+    jsonwebtoken "^8.5.1"
+
+"@standardnotes/auth@^3.17.5":
+  version "3.17.5"
+  resolved "https://registry.yarnpkg.com/@standardnotes/auth/-/auth-3.17.5.tgz#e5b0ee9a0ed36e90cc3951d3113256c28f568afd"
+  integrity sha512-c9hoB4tTHvHAWERqsMBqOPJgesNrFp/tWevSPfxgTqVv3HfxLckPYQdWb3RlKevXVreb5ldRy0doHIMnbQDEYg==
   dependencies:
     "@standardnotes/common" "^1.15.3"
     jsonwebtoken "^8.5.1"

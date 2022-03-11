@@ -23,9 +23,9 @@ export class FinishUploadSession implements UseCaseInterface {
 
   async execute(dto: FinishUploadSessionDTO): Promise<FinishUploadSessionResponse> {
     try {
-      this.logger.debug(`Finishing upload session for resource: ${dto.resource}`)
+      this.logger.debug(`Finishing upload session for resource: ${dto.resourceRemoteIdentifier}`)
 
-      const filePath = `${dto.userUuid}/${dto.resource}`
+      const filePath = `${dto.userUuid}/${dto.resourceRemoteIdentifier}`
 
       const uploadId = await this.uploadRepository.retrieveUploadSessionId(filePath)
       if (uploadId === undefined) {
@@ -44,8 +44,8 @@ export class FinishUploadSession implements UseCaseInterface {
       await this.domainEventPublisher.publish(
         this.domainEventFactory.createFileUploadedEvent({
           userUuid: dto.userUuid,
-          filePath: `${dto.userUuid}/${dto.resource}`,
-          fileName: dto.resource,
+          filePath: `${dto.userUuid}/${dto.resourceRemoteIdentifier}`,
+          fileName: dto.resourceRemoteIdentifier,
           fileByteSize: 1,
         })
       )
@@ -54,7 +54,7 @@ export class FinishUploadSession implements UseCaseInterface {
         success: true,
       }
     } catch (error) {
-      this.logger.error(`Could not finish upload session for resource: ${dto.resource} - ${error.message}`)
+      this.logger.error(`Could not finish upload session for resource: ${dto.resourceRemoteIdentifier} - ${error.message}`)
 
       return {
         success: false,

@@ -32,7 +32,7 @@ describe('UploadFileChunk', () => {
     await createUseCase().execute({
       chunkId: 2,
       data: new Uint8Array([123]),
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
 
@@ -48,7 +48,7 @@ describe('UploadFileChunk', () => {
     expect(await createUseCase().execute({
       chunkId: 2,
       data: new Uint8Array([123]),
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })).toEqual({
       success: false,
@@ -63,7 +63,7 @@ describe('UploadFileChunk', () => {
     await createUseCase().execute({
       chunkId: 2,
       data: new Uint8Array([123]),
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
 
