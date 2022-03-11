@@ -47,7 +47,7 @@ describe('FinishUploadSession', () => {
     uploadRepository.retrieveUploadSessionId = jest.fn().mockReturnValue(undefined)
 
     await createUseCase().execute({
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
 
@@ -61,7 +61,7 @@ describe('FinishUploadSession', () => {
     })
 
     expect(await createUseCase().execute({
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })).toEqual({
       success: false,
@@ -74,7 +74,7 @@ describe('FinishUploadSession', () => {
 
   it('should finish an upload session', async () => {
     await createUseCase().execute({
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
 

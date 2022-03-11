@@ -21,17 +21,17 @@ export class RemoveFile implements UseCaseInterface {
 
   async execute(dto: RemoveFileDTO): Promise<RemoveFileResponse> {
     try {
-      this.logger.debug(`Removing file: ${dto.resource}`)
+      this.logger.debug(`Removing file: ${dto.resourceRemoteIdentifier}`)
 
-      const filePath = `${dto.userUuid}/${dto.resource}`
+      const filePath = `${dto.userUuid}/${dto.resourceRemoteIdentifier}`
 
       const removedFileSize = await this.fileRemover.remove(filePath)
 
       await this.domainEventPublisher.publish(
         this.domainEventFactory.createFileRemovedEvent({
           userUuid: dto.userUuid,
-          filePath: `${dto.userUuid}/${dto.resource}`,
-          fileName: dto.resource,
+          filePath: `${dto.userUuid}/${dto.resourceRemoteIdentifier}`,
+          fileName: dto.resourceRemoteIdentifier,
           fileByteSize: removedFileSize,
         })
       )
@@ -40,7 +40,7 @@ export class RemoveFile implements UseCaseInterface {
         success: true,
       }
     } catch (error) {
-      this.logger.error(`Could not remove resource: ${dto.resource} - ${error.message}`)
+      this.logger.error(`Could not remove resource: ${dto.resourceRemoteIdentifier} - ${error.message}`)
 
       return {
         success: false,

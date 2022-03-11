@@ -24,7 +24,12 @@ describe('ValetTokenAuthMiddleware', () => {
     tokenDecoder = {} as jest.Mocked<TokenDecoderInterface<ValetTokenData>>
     tokenDecoder.decodeToken = jest.fn().mockReturnValue({
       userUuid: '1-2-3',
-      permittedResources: [ '1-2-3/2-3-4' ],
+      permittedResources: [
+        {
+          remoteIdentifier: '1-2-3/2-3-4',
+          unencryptedFileSize: 30,
+        },
+      ],
       permittedOperation: 'write',
       uploadBytesLimit: 100,
       uploadBytesUsed: 80,
@@ -46,14 +51,18 @@ describe('ValetTokenAuthMiddleware', () => {
   it('should authorize user with a valet token', async () => {
     tokenDecoder.decodeToken = jest.fn().mockReturnValue({
       userUuid: '1-2-3',
-      permittedResources: [ '1-2-3/2-3-4' ],
+      permittedResources: [
+        {
+          remoteIdentifier: '1-2-3/2-3-4',
+          unencryptedFileSize: 30,
+        },
+      ],
       permittedOperation: 'write',
       uploadBytesLimit: -1,
       uploadBytesUsed: 80,
     })
 
     request.headers['x-valet-token'] = 'valet-token'
-    request.headers['content-length'] = '30'
 
     await createMiddleware().handler(request, response, next)
 
@@ -61,7 +70,10 @@ describe('ValetTokenAuthMiddleware', () => {
       userUuid: '1-2-3',
       permittedOperation: 'write',
       permittedResources: [
-        '1-2-3/2-3-4',
+        {
+          remoteIdentifier: '1-2-3/2-3-4',
+          unencryptedFileSize: 30,
+        },
       ],
     })
 
@@ -70,7 +82,18 @@ describe('ValetTokenAuthMiddleware', () => {
 
   it('should authorize user with unlimited upload with a valet token', async () => {
     request.headers['x-valet-token'] = 'valet-token'
-    request.headers['content-length'] = '10'
+    tokenDecoder.decodeToken = jest.fn().mockReturnValue({
+      userUuid: '1-2-3',
+      permittedResources: [
+        {
+          remoteIdentifier: '1-2-3/2-3-4',
+          unencryptedFileSize: 10,
+        },
+      ],
+      permittedOperation: 'write',
+      uploadBytesLimit: -1,
+      uploadBytesUsed: 80,
+    })
 
     await createMiddleware().handler(request, response, next)
 
@@ -78,7 +101,10 @@ describe('ValetTokenAuthMiddleware', () => {
       userUuid: '1-2-3',
       permittedOperation: 'write',
       permittedResources: [
-        '1-2-3/2-3-4',
+        {
+          remoteIdentifier: '1-2-3/2-3-4',
+          unencryptedFileSize: 10,
+        },
       ],
     })
 
@@ -87,7 +113,18 @@ describe('ValetTokenAuthMiddleware', () => {
 
   it('should not authorize user with no space left for upload', async () => {
     request.headers['x-valet-token'] = 'valet-token'
-    request.headers['content-length'] = '21'
+    tokenDecoder.decodeToken = jest.fn().mockReturnValue({
+      userUuid: '1-2-3',
+      permittedResources: [
+        {
+          remoteIdentifier: '1-2-3/2-3-4',
+          unencryptedFileSize: 21,
+        },
+      ],
+      permittedOperation: 'write',
+      uploadBytesLimit: 100,
+      uploadBytesUsed: 80,
+    })
 
     await createMiddleware().handler(request, response, next)
 
@@ -97,11 +134,15 @@ describe('ValetTokenAuthMiddleware', () => {
 
   it('should authorize user with no space left for upload for download operations', async () => {
     request.headers['x-valet-token'] = 'valet-token'
-    request.headers['content-length'] = '21'
 
     tokenDecoder.decodeToken = jest.fn().mockReturnValue({
       userUuid: '1-2-3',
-      permittedResources: [ '1-2-3/2-3-4' ],
+      permittedResources: [
+        {
+          remoteIdentifier: '1-2-3/2-3-4',
+          unencryptedFileSize: 21,
+        },
+      ],
       permittedOperation: 'read',
       uploadBytesLimit: 100,
       uploadBytesUsed: 80,
@@ -113,7 +154,10 @@ describe('ValetTokenAuthMiddleware', () => {
       userUuid: '1-2-3',
       permittedOperation: 'read',
       permittedResources: [
-        '1-2-3/2-3-4',
+        {
+          remoteIdentifier: '1-2-3/2-3-4',
+          unencryptedFileSize: 21,
+        },
       ],
     })
 

@@ -45,7 +45,7 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
         return
       }
 
-      if (this.userHasNoSpaceToUpload(valetTokenData, +(request.headers['content-length'] as string))) {
+      if (this.userHasNoSpaceToUpload(valetTokenData)) {
         response.status(403).send({
           error: {
             tag: 'no-space',
@@ -66,7 +66,7 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
     }
   }
 
-  private userHasNoSpaceToUpload(valetTokenData: ValetTokenData, contentLength: number) {
+  private userHasNoSpaceToUpload(valetTokenData: ValetTokenData) {
     if (valetTokenData.permittedOperation !== 'write') {
       return false
     }
@@ -77,6 +77,11 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
 
     const remainingUploadSpace = valetTokenData.uploadBytesLimit - valetTokenData.uploadBytesUsed
 
-    return remainingUploadSpace - contentLength <= 0
+    let consideredUploadSize = 0
+    for (const resource of valetTokenData.permittedResources) {
+      consideredUploadSize += resource.unencryptedFileSize as number
+    }
+
+    return remainingUploadSpace - consideredUploadSize <= 0
   }
 }

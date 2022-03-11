@@ -42,7 +42,7 @@ describe('RemoveFile', () => {
     })
 
     expect(await createUseCase().execute({
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })).toEqual({
       success: false,
@@ -54,7 +54,7 @@ describe('RemoveFile', () => {
 
   it('should remove a file', async () => {
     await createUseCase().execute({
-      resource: '2-3-4',
+      resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
     })
 

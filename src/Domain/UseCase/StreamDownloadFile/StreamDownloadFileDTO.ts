@@ -1,6 +1,6 @@
 export type StreamDownloadFileDTO = {
   userUuid: string
-  resource: string
+  resourceRemoteIdentifier: string
   startRange: number
   endRange: number
 }
