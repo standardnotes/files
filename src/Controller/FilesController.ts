@@ -35,7 +35,7 @@ export class FilesController extends BaseHttpController {
   async startUpload(_request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
     const result = await this.createUploadSession.execute({
       userUuid: response.locals.userUuid,
-      resource: response.locals.permittedResources[0],
+      resourceRemoteIdentifier: response.locals.permittedResources[0].remoteIdentifier,
     })
 
     if (!result.success) {
@@ -54,7 +54,7 @@ export class FilesController extends BaseHttpController {
 
     const result = await this.uploadFileChunk.execute({
       userUuid: response.locals.userUuid,
-      resource: response.locals.permittedResources[0],
+      resourceRemoteIdentifier: response.locals.permittedResources[0].remoteIdentifier,
       chunkId,
       data: request.body,
     })
@@ -70,7 +70,7 @@ export class FilesController extends BaseHttpController {
   public async finishUpload(_request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
     const result = await this.finishUploadSession.execute({
       userUuid: response.locals.userUuid,
-      resource: response.locals.permittedResources[0],
+      resourceRemoteIdentifier: response.locals.permittedResources[0].remoteIdentifier,
     })
 
     if (!result.success) {
@@ -84,7 +84,7 @@ export class FilesController extends BaseHttpController {
   async remove(_request: Request, response: Response): Promise<results.BadRequestErrorMessageResult | results.JsonResult> {
     const result = await this.removeFile.execute({
       userUuid: response.locals.userUuid,
-      resource: response.locals.permittedResources[0],
+      resourceRemoteIdentifier: response.locals.permittedResources[0].remoteIdentifier,
     })
 
     if (!result.success) {
@@ -108,7 +108,7 @@ export class FilesController extends BaseHttpController {
 
     const fileMetadata = await this.getFileMetadata.execute({
       userUuid: response.locals.userUuid,
-      resource: response.locals.permittedResources[0],
+      resourceRemoteIdentifier: response.locals.permittedResources[0].remoteIdentifier,
     })
 
     if (!fileMetadata.success) {
@@ -129,7 +129,7 @@ export class FilesController extends BaseHttpController {
 
     const result = await this.streamDownloadFile.execute({
       userUuid: response.locals.userUuid,
-      resource: response.locals.permittedResources[0],
+      resourceRemoteIdentifier: response.locals.permittedResources[0].remoteIdentifier,
       startRange,
       endRange,
     })

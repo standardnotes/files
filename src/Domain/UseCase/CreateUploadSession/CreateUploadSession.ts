@@ -19,9 +19,9 @@ export class CreateUploadSession implements UseCaseInterface {
 
   async execute(dto: CreateUploadSessionDTO): Promise<CreateUploadSessionResponse> {
     try {
-      this.logger.debug(`Creating upload session for resource: ${dto.resource}`)
+      this.logger.debug(`Creating upload session for resource: ${dto.resourceRemoteIdentifier}`)
 
-      const filePath = `${dto.userUuid}/${dto.resource}`
+      const filePath = `${dto.userUuid}/${dto.resourceRemoteIdentifier}`
 
       const uploadId = await this.fileUploader.createUploadSession(filePath)
 
@@ -34,7 +34,7 @@ export class CreateUploadSession implements UseCaseInterface {
         uploadId,
       }
     } catch (error) {
-      this.logger.error(`Could not create upload session for resource: ${dto.resource} - ${error.message}`)
+      this.logger.error(`Could not create upload session for resource: ${dto.resourceRemoteIdentifier} - ${error.message}`)
 
       return {
         success: false,

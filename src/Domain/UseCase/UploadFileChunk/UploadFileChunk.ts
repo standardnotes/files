@@ -19,9 +19,9 @@ export class UploadFileChunk implements UseCaseInterface {
 
   async execute(dto: UploadFileChunkDTO): Promise<UploadFileChunkResponse> {
     try {
-      this.logger.debug(`Starting upload file chunk ${dto.chunkId} with ${dto.data.byteLength} bytes for resource: ${dto.resource}`)
+      this.logger.debug(`Starting upload file chunk ${dto.chunkId} with ${dto.data.byteLength} bytes for resource: ${dto.resourceRemoteIdentifier}`)
 
-      const filePath = `${dto.userUuid}/${dto.resource}`
+      const filePath = `${dto.userUuid}/${dto.resourceRemoteIdentifier}`
 
       const uploadId = await this.uploadRepository.retrieveUploadSessionId(filePath)
       if (uploadId === undefined) {
@@ -49,7 +49,7 @@ export class UploadFileChunk implements UseCaseInterface {
         success: true,
       }
     } catch (error) {
-      this.logger.error(`Could not upload file chunk for resource: ${dto.resource} - ${error.message}`)
+      this.logger.error(`Could not upload file chunk for resource: ${dto.resourceRemoteIdentifier} - ${error.message}`)
 
       return {
         success: false,
