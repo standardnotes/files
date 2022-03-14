@@ -34,7 +34,7 @@ describe('S3FileUploader', () => {
   })
 
   it('should finish an upload session', async () => {
-    await createUploader().finishUploadSession('123', '1-2-3/2-3-4', [{ PartNumber: 1, ETag: '123123' }])
+    await createUploader().finishUploadSession('123', '1-2-3/2-3-4', [{ chunkId: 1, tag: '123123', chunkSize: 100 }])
 
     expect(s3Client.completeMultipartUpload).toHaveBeenCalledWith({
       Bucket: 'test-bucket',

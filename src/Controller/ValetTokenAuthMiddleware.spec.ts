@@ -75,6 +75,8 @@ describe('ValetTokenAuthMiddleware', () => {
           unencryptedFileSize: 30,
         },
       ],
+      uploadBytesLimit: -1,
+      uploadBytesUsed: 80,
     })
 
     expect(next).toHaveBeenCalled()
@@ -106,6 +108,8 @@ describe('ValetTokenAuthMiddleware', () => {
           unencryptedFileSize: 10,
         },
       ],
+      uploadBytesLimit: -1,
+      uploadBytesUsed: 80,
     })
 
     expect(next).toHaveBeenCalled()
@@ -159,6 +163,8 @@ describe('ValetTokenAuthMiddleware', () => {
           unencryptedFileSize: 21,
         },
       ],
+      uploadBytesLimit: 100,
+      uploadBytesUsed: 80,
     })
 
     expect(next).toHaveBeenCalled()

@@ -14,7 +14,8 @@ describe('RedisUploadRepository', () => {
     redisClient.setex = jest.fn()
     redisClient.get = jest.fn().mockReturnValue('123')
     redisClient.lpush = jest.fn()
-    redisClient.lrange = jest.fn().mockReturnValue(['{"ETag":"123","PartNumber":3}', '{"ETag":"123","PartNumber":1}'])
+    redisClient.expire = jest.fn()
+    redisClient.lrange = jest.fn().mockReturnValue(['{"tag":"123","chunkId":3}', '{"tag":"123","chunkId":1}'])
   })
 
   it('should store an upload session', async () => {
@@ -36,20 +37,21 @@ describe('RedisUploadRepository', () => {
   })
 
   it('should store and upload chunk result', async () => {
-    await createRepository().storeUploadChunkResult('123', { ETag: '123', PartNumber: 3 })
+    await createRepository().storeUploadChunkResult('123', { tag: '123', chunkId: 3, chunkSize: 100 })
 
-    expect(redisClient.lpush).toHaveBeenCalledWith('upload-chunks:123', '{"ETag":"123","PartNumber":3}')
+    expect(redisClient.lpush).toHaveBeenCalledWith('upload-chunks:123', '{"tag":"123","chunkId":3,"chunkSize":100}')
+    expect(redisClient.expire).toHaveBeenCalledWith('upload-chunks:123', 7200)
   })
 
   it('should retrieve upload chunk results', async () => {
     expect(await createRepository().retrieveUploadChunkResults('123')).toEqual([
       {
-        ETag: '123',
-        PartNumber: 1,
+        tag: '123',
+        chunkId: 1,
       },
       {
-        ETag: '123',
-        PartNumber: 3,
+        tag: '123',
+        chunkId: 3,
       },
     ])
 

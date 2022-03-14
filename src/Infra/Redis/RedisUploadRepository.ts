@@ -30,6 +30,7 @@ export class RedisUploadRepository implements UploadRepositoryInterface {
 
   async storeUploadChunkResult(uploadId: string, uploadChunkResult: UploadChunkResult): Promise<void> {
     await this.redisClient.lpush(`${this.UPLOAD_CHUNKS_PREFIX}:${uploadId}`, JSON.stringify(uploadChunkResult))
+    await this.redisClient.expire(`${this.UPLOAD_CHUNKS_PREFIX}:${uploadId}`, this.UPLOAD_SESSION_DEFAULT_TTL)
   }
 
   async retrieveUploadChunkResults(uploadId: string): Promise<UploadChunkResult[]> {
@@ -40,7 +41,7 @@ export class RedisUploadRepository implements UploadRepositoryInterface {
     }
 
     const sortedResults = uploadChunksResults.sort((a, b) => {
-      return a.PartNumber - b.PartNumber
+      return a.chunkId - b.chunkId
     })
 
     return sortedResults

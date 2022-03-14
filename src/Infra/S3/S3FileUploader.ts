@@ -38,11 +38,13 @@ export class S3FileUploader implements FileUploaderInterface {
   }
 
   async finishUploadSession(uploadId: string, filePath: string, uploadChunkResults: UploadChunkResult[]): Promise<void> {
+    const multipartUploadParts = uploadChunkResults.map(uploadChunkResult => ({ ETag: uploadChunkResult.tag, PartNumber: uploadChunkResult.chunkId }))
+
     await this.s3Client.completeMultipartUpload({
       Bucket: this.s3BuckeName,
       Key: filePath,
       MultipartUpload: {
-        Parts: uploadChunkResults,
+        Parts: multipartUploadParts,
       },
       UploadId: uploadId,
     }).promise()
