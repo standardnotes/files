@@ -75,6 +75,6 @@ describe('UploadFileChunk', () => {
       filePath: '1-2-3/2-3-4',
       uploadId: '123',
     })
-    expect(uploadRepository.storeUploadChunkResult).toHaveBeenCalledWith('123', { ETag: 'ETag123', PartNumber: 2 })
+    expect(uploadRepository.storeUploadChunkResult).toHaveBeenCalledWith('123', { tag: 'ETag123', chunkId: 2, chunkSize: 1 })
   })
 })

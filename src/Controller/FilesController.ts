@@ -71,6 +71,8 @@ export class FilesController extends BaseHttpController {
     const result = await this.finishUploadSession.execute({
       userUuid: response.locals.userUuid,
       resourceRemoteIdentifier: response.locals.permittedResources[0].remoteIdentifier,
+      uploadBytesLimit: response.locals.uploadBytesLimit,
+      uploadBytesUsed: response.locals.uploadBytesUsed,
     })
 
     if (!result.success) {
