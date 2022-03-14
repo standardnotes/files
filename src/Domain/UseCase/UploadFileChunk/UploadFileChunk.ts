@@ -41,8 +41,9 @@ export class UploadFileChunk implements UseCaseInterface {
       })
 
       await this.uploadRepository.storeUploadChunkResult(uploadId, {
-        ETag: uploadFileChunkETag,
-        PartNumber: dto.chunkId,
+        tag: uploadFileChunkETag,
+        chunkId: dto.chunkId,
+        chunkSize: dto.data.byteLength,
       })
 
       return {

@@ -1,6 +1,7 @@
 import { ChunkId } from './ChunkId'
 
 export type UploadChunkResult = {
-  PartNumber: ChunkId
-  ETag: string
+  chunkId: ChunkId
+  tag: string
+  chunkSize: number
 }

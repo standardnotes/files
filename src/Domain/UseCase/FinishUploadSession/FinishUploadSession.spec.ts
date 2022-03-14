@@ -29,7 +29,7 @@ describe('FinishUploadSession', () => {
 
     uploadRepository = {} as jest.Mocked<UploadRepositoryInterface>
     uploadRepository.retrieveUploadSessionId = jest.fn().mockReturnValue('123')
-    uploadRepository.retrieveUploadChunkResults = jest.fn().mockReturnValue([{ ETag: '123', PartNumber: 1 }])
+    uploadRepository.retrieveUploadChunkResults = jest.fn().mockReturnValue([{ tag: '123', chunkId: 1, chunkSize: 1 }])
 
     domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
     domainEventPublisher.publish = jest.fn()
@@ -49,6 +49,8 @@ describe('FinishUploadSession', () => {
     await createUseCase().execute({
       resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
+      uploadBytesLimit: 100,
+      uploadBytesUsed: 0,
     })
 
     expect(fileUploader.finishUploadSession).not.toHaveBeenCalled()
@@ -63,6 +65,8 @@ describe('FinishUploadSession', () => {
     expect(await createUseCase().execute({
       resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
+      uploadBytesLimit: 100,
+      uploadBytesUsed: 0,
     })).toEqual({
       success: false,
       message: 'Could not finish upload session',
@@ -76,9 +80,32 @@ describe('FinishUploadSession', () => {
     await createUseCase().execute({
       resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
+      uploadBytesLimit: 100,
+      uploadBytesUsed: 0,
     })
 
-    expect(fileUploader.finishUploadSession).toHaveBeenCalledWith('123', '1-2-3/2-3-4', [{ ETag: '123', PartNumber: 1 }])
+    expect(fileUploader.finishUploadSession).toHaveBeenCalledWith('123', '1-2-3/2-3-4', [{ tag: '123', chunkId: 1, chunkSize: 1 }])
     expect(domainEventPublisher.publish).toHaveBeenCalled()
+  })
+
+  it('should not finish an upload session if the file size exceeds storage quota', async () => {
+    uploadRepository.retrieveUploadChunkResults = jest.fn().mockReturnValue([
+      { tag: '123', chunkId: 1, chunkSize: 60 },
+      { tag: '234', chunkId: 2, chunkSize: 10 },
+      { tag: '345', chunkId: 3, chunkSize: 20 },
+    ])
+
+    expect(await createUseCase().execute({
+      resourceRemoteIdentifier: '2-3-4',
+      userUuid: '1-2-3',
+      uploadBytesLimit: 100,
+      uploadBytesUsed: 20,
+    })).toEqual({
+      success: false,
+      message: 'Could not finish upload session. You are out of space.',
+    })
+
+    expect(fileUploader.finishUploadSession).not.toHaveBeenCalled()
+    expect(domainEventPublisher.publish).not.toHaveBeenCalled()
   })
 })

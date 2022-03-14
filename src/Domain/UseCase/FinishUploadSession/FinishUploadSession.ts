@@ -39,6 +39,19 @@ export class FinishUploadSession implements UseCaseInterface {
 
       const uploadChunkResults = await this.uploadRepository.retrieveUploadChunkResults(uploadId)
 
+      let totalFileSize = 0
+      for(const uploadChunkResult of uploadChunkResults) {
+        totalFileSize += uploadChunkResult.chunkSize
+      }
+
+      const remainingSpaceLeft = dto.uploadBytesLimit - dto.uploadBytesUsed
+      if (remainingSpaceLeft < totalFileSize) {
+        return {
+          success: false,
+          message: 'Could not finish upload session. You are out of space.',
+        }
+      }
+
       await this.fileUploader.finishUploadSession(uploadId, filePath, uploadChunkResults)
 
       await this.domainEventPublisher.publish(
@@ -46,7 +59,7 @@ export class FinishUploadSession implements UseCaseInterface {
           userUuid: dto.userUuid,
           filePath: `${dto.userUuid}/${dto.resourceRemoteIdentifier}`,
           fileName: dto.resourceRemoteIdentifier,
-          fileByteSize: 1,
+          fileByteSize: totalFileSize,
         })
       )
 
