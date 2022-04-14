@@ -11,7 +11,15 @@ import { TokenDecoder, TokenDecoderInterface, ValetTokenData } from '@standardno
 import { Timer, TimerInterface } from '@standardnotes/time'
 import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
-import { RedisDomainEventPublisher, SNSDomainEventPublisher } from '@standardnotes/domain-events-infra'
+import {
+  RedisDomainEventPublisher,
+  RedisDomainEventSubscriberFactory,
+  RedisEventMessageHandler,
+  SNSDomainEventPublisher,
+  SQSDomainEventSubscriberFactory,
+  SQSEventMessageHandler,
+  SQSNewRelicEventMessageHandler,
+} from '@standardnotes/domain-events-infra'
 import { StreamDownloadFile } from '../Domain/UseCase/StreamDownloadFile/StreamDownloadFile'
 import { FileDownloaderInterface } from '../Domain/Services/FileDownloaderInterface'
 import { S3FileDownloader } from '../Infra/S3/S3FileDownloader'
@@ -28,6 +36,13 @@ import { FileRemoverInterface } from '../Domain/Services/FileRemoverInterface'
 import { S3FileRemover } from '../Infra/S3/S3FileRemover'
 import { FSFileRemover } from '../Infra/FS/FSFileRemover'
 import { RemoveFile } from '../Domain/UseCase/RemoveFile/RemoveFile'
+import {
+  DomainEventHandlerInterface,
+  DomainEventMessageHandlerInterface,
+  DomainEventSubscriberFactoryInterface,
+} from '@standardnotes/domain-events'
+import { MarkFilesToBeRemoved } from '../Domain/UseCase/MarkFilesToBeRemoved/MarkFilesToBeRemoved'
+import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -81,6 +96,7 @@ export class ContainerConfigLoader {
     container.bind<FinishUploadSession>(TYPES.FinishUploadSession).to(FinishUploadSession)
     container.bind<GetFileMetadata>(TYPES.GetFileMetadata).to(GetFileMetadata)
     container.bind<RemoveFile>(TYPES.RemoveFile).to(RemoveFile)
+    container.bind<MarkFilesToBeRemoved>(TYPES.MarkFilesToBeRemoved).to(MarkFilesToBeRemoved)
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)
@@ -115,6 +131,39 @@ export class ContainerConfigLoader {
       container.bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
         new RedisDomainEventPublisher(
           container.get(TYPES.Redis),
+          container.get(TYPES.REDIS_EVENTS_CHANNEL)
+        )
+      )
+    }
+
+    // Handlers
+    container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
+
+    const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
+      ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
+    ])
+
+    if (env.get('SQS_QUEUE_URL', true)) {
+      container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
+        env.get('NEW_RELIC_ENABLED', true) === 'true' ?
+          new SQSNewRelicEventMessageHandler(eventHandlers, container.get(TYPES.Logger)) :
+          new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+      )
+      container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
+        new SQSDomainEventSubscriberFactory(
+          container.get(TYPES.SQS),
+          container.get(TYPES.SQS_QUEUE_URL),
+          container.get(TYPES.DomainEventMessageHandler)
+        )
+      )
+    } else {
+      container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
+        new RedisEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+      )
+      container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
+        new RedisDomainEventSubscriberFactory(
+          container.get(TYPES.Redis),
+          container.get(TYPES.DomainEventMessageHandler),
           container.get(TYPES.REDIS_EVENTS_CHANNEL)
         )
       )

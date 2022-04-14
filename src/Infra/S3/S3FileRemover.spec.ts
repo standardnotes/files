@@ -30,4 +30,82 @@ describe('S3FileRemover', () => {
       Key: '123/234',
     })
   })
+
+  it('should mark user files for removal', async () => {
+    const copyObjectRequest = {} as jest.Mocked<AWS.Request<AWS.S3.Types.CopyObjectRequest, AWS.AWSError>>
+    copyObjectRequest.promise = jest.fn()
+
+    s3Client.copyObject = jest.fn().mockReturnValue(copyObjectRequest)
+
+    const listObjectsRequest = {} as jest.Mocked<AWS.Request<AWS.S3.Types.ListObjectsV2Request, AWS.AWSError>>
+    listObjectsRequest.promise = jest.fn().mockReturnValue({
+      Contents: [
+        {
+          Key: '123/2-3-4',
+        },
+        {
+          Key: '123/3-4-5',
+        },
+        {
+        },
+      ],
+    } as jest.Mocked<AWS.S3.ListObjectsV2Output>)
+
+    s3Client.listObjectsV2 = jest.fn().mockReturnValue(listObjectsRequest)
+
+    await createService().markFilesToBeRemoved('123')
+
+    expect(s3Client.copyObject).toHaveBeenCalledTimes(2)
+    expect(s3Client.copyObject).toHaveBeenNthCalledWith(
+      1,
+      {
+        Bucket: 'test',
+        CopySource: '123/2-3-4',
+        Key: 'expiration-chamber/123/2-3-4',
+        StorageClass: 'DEEP_ARCHIVE',
+      },
+    )
+    expect(s3Client.copyObject).toHaveBeenNthCalledWith(
+      2,
+      {
+        Bucket: 'test',
+        CopySource: '123/3-4-5',
+        Key: 'expiration-chamber/123/3-4-5',
+        StorageClass: 'DEEP_ARCHIVE',
+      },
+    )
+
+    expect(s3Client.deleteObject).toHaveBeenCalledTimes(2)
+    expect(s3Client.deleteObject).toHaveBeenNthCalledWith(
+      1,
+      {
+        Bucket: 'test',
+        Key: '123/2-3-4',
+      }
+    )
+    expect(s3Client.deleteObject).toHaveBeenNthCalledWith(
+      2,
+      {
+        Bucket: 'test',
+        Key: '123/3-4-5',
+      }
+    )
+  })
+
+  it('should not mark user files for removal if there none', async () => {
+    const copyObjectRequest = {} as jest.Mocked<AWS.Request<AWS.S3.Types.CopyObjectRequest, AWS.AWSError>>
+    copyObjectRequest.promise = jest.fn()
+
+    s3Client.copyObject = jest.fn().mockReturnValue(copyObjectRequest)
+
+    const listObjectsRequest = {} as jest.Mocked<AWS.Request<AWS.S3.Types.ListObjectsV2Request, AWS.AWSError>>
+    listObjectsRequest.promise = jest.fn().mockReturnValue({} as jest.Mocked<AWS.S3.ListObjectsV2Output>)
+
+    s3Client.listObjectsV2 = jest.fn().mockReturnValue(listObjectsRequest)
+
+    await createService().markFilesToBeRemoved('123')
+
+    expect(s3Client.copyObject).not.toHaveBeenCalled()
+    expect(s3Client.deleteObject).not.toHaveBeenCalled()
+  })
 })
