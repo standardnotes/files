@@ -19,10 +19,11 @@ export class MarkFilesToBeRemoved implements UseCaseInterface {
     try {
       this.logger.debug(`Marking files for later removal for user: ${dto.userUuid}`)
 
-      await this.fileRemover.markFilesToBeRemoved(dto.userUuid)
+      const filesRemoved = await this.fileRemover.markFilesToBeRemoved(dto.userUuid)
 
       return {
         success: true,
+        filesRemoved,
       }
     } catch (error) {
       this.logger.error(`Could not mark resources for removal: ${dto.userUuid} - ${error.message}`)

@@ -2,11 +2,14 @@ import { injectable } from 'inversify'
 import { promises } from 'fs'
 
 import { FileRemoverInterface } from '../../Domain/Services/FileRemoverInterface'
+import { RemovedFileDescription } from '../../Domain/File/RemovedFileDescription'
 
 @injectable()
 export class FSFileRemover implements FileRemoverInterface {
-  async markFilesToBeRemoved(userUuid: string): Promise<void> {
+  async markFilesToBeRemoved(userUuid: string): Promise<Array<RemovedFileDescription>> {
     await promises.rmdir(`${__dirname}/tmp/${userUuid}`)
+
+    return []
   }
 
   async remove(filePath: string): Promise<number> {

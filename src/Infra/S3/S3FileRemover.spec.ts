@@ -42,9 +42,11 @@ describe('S3FileRemover', () => {
       Contents: [
         {
           Key: '123/2-3-4',
+          Size: 123,
         },
         {
           Key: '123/3-4-5',
+          Size: 234,
         },
         {
         },
@@ -53,7 +55,20 @@ describe('S3FileRemover', () => {
 
     s3Client.listObjectsV2 = jest.fn().mockReturnValue(listObjectsRequest)
 
-    await createService().markFilesToBeRemoved('123')
+    expect(await createService().markFilesToBeRemoved('123')).toEqual([
+      {
+        fileByteSize: 123,
+        fileName: '2-3-4',
+        filePath: '123/2-3-4',
+        userUuid: '123',
+      },
+      {
+        fileByteSize: 234,
+        fileName: '3-4-5',
+        filePath: '123/3-4-5',
+        userUuid: '123',
+      },
+    ])
 
     expect(s3Client.copyObject).toHaveBeenCalledTimes(2)
     expect(s3Client.copyObject).toHaveBeenNthCalledWith(
@@ -103,7 +118,7 @@ describe('S3FileRemover', () => {
 
     s3Client.listObjectsV2 = jest.fn().mockReturnValue(listObjectsRequest)
 
-    await createService().markFilesToBeRemoved('123')
+    expect(await createService().markFilesToBeRemoved('123')).toEqual([])
 
     expect(s3Client.copyObject).not.toHaveBeenCalled()
     expect(s3Client.deleteObject).not.toHaveBeenCalled()

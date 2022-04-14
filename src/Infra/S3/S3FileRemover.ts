@@ -3,6 +3,7 @@ import * as AWS from 'aws-sdk'
 
 import TYPES from '../../Bootstrap/Types'
 import { FileRemoverInterface } from '../../Domain/Services/FileRemoverInterface'
+import { RemovedFileDescription } from '../../Domain/File/RemovedFileDescription'
 
 @injectable()
 export class S3FileRemover implements FileRemoverInterface {
@@ -12,17 +13,19 @@ export class S3FileRemover implements FileRemoverInterface {
   ) {
   }
 
-  async markFilesToBeRemoved(userUuid: string): Promise<void> {
+  async markFilesToBeRemoved(userUuid: string): Promise<Array<RemovedFileDescription>> {
     const filesResponse = await this.s3Client.listObjectsV2({
       Bucket: this.s3BuckeName,
       Prefix: `${userUuid}/`,
     }).promise()
 
     if (filesResponse.Contents === undefined) {
-      return
+      return []
     }
 
     const files = filesResponse.Contents
+
+    const removedFileDescriptions: Array<RemovedFileDescription> = []
 
     for (const file of files) {
       if (file.Key === undefined) {
@@ -40,7 +43,16 @@ export class S3FileRemover implements FileRemoverInterface {
         Bucket: this.s3BuckeName,
         Key: file.Key,
       }).promise()
+
+      removedFileDescriptions.push({
+        fileByteSize: file.Size as number,
+        fileName: file.Key.replace(`${userUuid}/`, ''),
+        filePath: file.Key,
+        userUuid,
+      })
     }
+
+    return removedFileDescriptions
   }
 
   async remove(filePath: string): Promise<number> {
