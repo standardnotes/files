@@ -12,6 +12,37 @@ export class S3FileRemover implements FileRemoverInterface {
   ) {
   }
 
+  async markFilesToBeRemoved(userUuid: string): Promise<void> {
+    const filesResponse = await this.s3Client.listObjectsV2({
+      Bucket: this.s3BuckeName,
+      Prefix: `${userUuid}/`,
+    }).promise()
+
+    if (filesResponse.Contents === undefined) {
+      return
+    }
+
+    const files = filesResponse.Contents
+
+    for (const file of files) {
+      if (file.Key === undefined) {
+        continue
+      }
+
+      await this.s3Client.copyObject({
+        Bucket: this.s3BuckeName,
+        Key: `expiration-chamber/${file.Key}`,
+        CopySource: file.Key,
+        StorageClass: 'DEEP_ARCHIVE',
+      }).promise()
+
+      await this.s3Client.deleteObject({
+        Bucket: this.s3BuckeName,
+        Key: file.Key,
+      }).promise()
+    }
+  }
+
   async remove(filePath: string): Promise<number> {
     const head = await this.s3Client.headObject({
       Bucket: this.s3BuckeName,
