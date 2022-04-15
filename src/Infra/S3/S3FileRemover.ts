@@ -23,8 +23,6 @@ export class S3FileRemover implements FileRemoverInterface {
       Prefix: `${userUuid}/`,
     }).promise()
 
-    this.logger.debug('[%s] Listed the following files: %O', userUuid, filesResponse.Contents)
-
     if (filesResponse.Contents === undefined) {
       return []
     }
@@ -43,7 +41,7 @@ export class S3FileRemover implements FileRemoverInterface {
       await this.s3Client.copyObject({
         Bucket: this.s3BuckeName,
         Key: `expiration-chamber/${file.Key}`,
-        CopySource: file.Key,
+        CopySource: `${this.s3BuckeName}/${file.Key}`,
         StorageClass: 'DEEP_ARCHIVE',
       }).promise()
 

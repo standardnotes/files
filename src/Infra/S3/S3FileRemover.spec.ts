@@ -80,7 +80,7 @@ describe('S3FileRemover', () => {
       1,
       {
         Bucket: 'test',
-        CopySource: '123/2-3-4',
+        CopySource: 'test/123/2-3-4',
         Key: 'expiration-chamber/123/2-3-4',
         StorageClass: 'DEEP_ARCHIVE',
       },
@@ -89,7 +89,7 @@ describe('S3FileRemover', () => {
       2,
       {
         Bucket: 'test',
-        CopySource: '123/3-4-5',
+        CopySource: 'test/123/3-4-5',
         Key: 'expiration-chamber/123/3-4-5',
         StorageClass: 'DEEP_ARCHIVE',
       },
