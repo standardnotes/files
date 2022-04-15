@@ -3,12 +3,14 @@ import 'reflect-metadata'
 import * as AWS from 'aws-sdk'
 
 import { S3FileRemover } from './S3FileRemover'
+import { Logger } from 'winston'
 
 describe('S3FileRemover', () => {
   let s3Client: AWS.S3
+  let logger: Logger
   const s3BuckeName = 'test'
 
-  const createService = () => new S3FileRemover(s3Client, s3BuckeName)
+  const createService = () => new S3FileRemover(s3Client, s3BuckeName, logger)
 
   beforeEach(() => {
     const deleteObjectRequest = {} as jest.Mocked<AWS.Request<AWS.S3.Types.DeleteObjectRequest, AWS.AWSError>>
@@ -20,6 +22,9 @@ describe('S3FileRemover', () => {
     const headRequest = {} as jest.Mocked<AWS.Request<AWS.S3.Types.HeadObjectOutput, AWS.AWSError>>
     headRequest.promise = jest.fn().mockReturnValue(Promise.resolve({ ContentLength: 200 }))
     s3Client.headObject = jest.fn().mockReturnValue(headRequest)
+
+    logger = {} as jest.Mocked<Logger>
+    logger.debug = jest.fn()
   })
 
   it('should delete a file', async () => {
