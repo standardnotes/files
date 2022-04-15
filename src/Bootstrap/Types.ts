@@ -48,6 +48,7 @@ const TYPES = {
   DomainEventMessageHandler: Symbol.for('DomainEventMessageHandler'),
   DomainEventSubscriberFactory: Symbol.for('DomainEventSubscriberFactory'),
   AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
+  SharedSubscriptionInvitationCanceledEventHandler: Symbol.for('SharedSubscriptionInvitationCanceledEventHandler'),
 }
 
 export default TYPES

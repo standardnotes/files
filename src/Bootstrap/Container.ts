@@ -43,6 +43,7 @@ import {
 } from '@standardnotes/domain-events'
 import { MarkFilesToBeRemoved } from '../Domain/UseCase/MarkFilesToBeRemoved/MarkFilesToBeRemoved'
 import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
+import { SharedSubscriptionInvitationCanceledEventHandler } from '../Domain/Handler/SharedSubscriptionInvitationCanceledEventHandler'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -153,9 +154,11 @@ export class ContainerConfigLoader {
 
     // Handlers
     container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
+    container.bind<SharedSubscriptionInvitationCanceledEventHandler>(TYPES.SharedSubscriptionInvitationCanceledEventHandler).to(SharedSubscriptionInvitationCanceledEventHandler)
 
     const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
       ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
+      ['SHARED_SUBSCRIPTION_INVITATION_CANCELED', container.get(TYPES.SharedSubscriptionInvitationCanceledEventHandler)],
     ])
 
     if (env.get('SQS_QUEUE_URL', true)) {
