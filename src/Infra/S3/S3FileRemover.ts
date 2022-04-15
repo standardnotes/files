@@ -4,20 +4,16 @@ import * as AWS from 'aws-sdk'
 import TYPES from '../../Bootstrap/Types'
 import { FileRemoverInterface } from '../../Domain/Services/FileRemoverInterface'
 import { RemovedFileDescription } from '../../Domain/File/RemovedFileDescription'
-import { Logger } from 'winston'
 
 @injectable()
 export class S3FileRemover implements FileRemoverInterface {
   constructor(
     @inject(TYPES.S3) private s3Client: AWS.S3,
     @inject(TYPES.S3_BUCKET_NAME) private s3BuckeName: string,
-    @inject(TYPES.Logger) private logger: Logger
   ) {
   }
 
   async markFilesToBeRemoved(userUuid: string): Promise<Array<RemovedFileDescription>> {
-    this.logger.debug('[%s] Listing objects in bucket %s', userUuid, this.s3BuckeName)
-
     const filesResponse = await this.s3Client.listObjectsV2({
       Bucket: this.s3BuckeName,
       Prefix: `${userUuid}/`,
@@ -36,16 +32,12 @@ export class S3FileRemover implements FileRemoverInterface {
         continue
       }
 
-      this.logger.debug(`Copying object ${file.Key}`)
-
       await this.s3Client.copyObject({
         Bucket: this.s3BuckeName,
         Key: `expiration-chamber/${file.Key}`,
         CopySource: `${this.s3BuckeName}/${file.Key}`,
         StorageClass: 'DEEP_ARCHIVE',
       }).promise()
-
-      this.logger.debug(`Deleting object ${file.Key}`)
 
       await this.s3Client.deleteObject({
         Bucket: this.s3BuckeName,
