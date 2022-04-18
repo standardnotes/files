@@ -15,6 +15,10 @@ export class AccountDeletionRequestedEventHandler implements DomainEventHandlerI
   }
 
   async handle(event: AccountDeletionRequestedEvent): Promise<void> {
+    if (event.payload.regularSubscriptionUuid === undefined) {
+      return
+    }
+
     const response = await this.markFilesToBeRemoved.execute({
       userUuid: event.payload.userUuid,
     })
@@ -25,7 +29,10 @@ export class AccountDeletionRequestedEventHandler implements DomainEventHandlerI
 
     for (const fileRemoved of response.filesRemoved) {
       await this.domainEventPublisher.publish(
-        this.domainEventFactory.createFileRemovedEvent(fileRemoved)
+        this.domainEventFactory.createFileRemovedEvent({
+          regularSubscriptionUuid: event.payload.regularSubscriptionUuid,
+          ...fileRemoved,
+        })
       )
     }
   }

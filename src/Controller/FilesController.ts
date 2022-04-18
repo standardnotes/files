@@ -87,6 +87,7 @@ export class FilesController extends BaseHttpController {
     const result = await this.removeFile.execute({
       userUuid: response.locals.userUuid,
       resourceRemoteIdentifier: response.locals.permittedResources[0].remoteIdentifier,
+      regularSubscriptionUuid: response.locals.regularSubscriptionUuid,
     })
 
     if (!result.success) {

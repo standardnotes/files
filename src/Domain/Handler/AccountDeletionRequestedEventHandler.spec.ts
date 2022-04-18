@@ -27,6 +27,7 @@ describe('AccountDeletionRequestedEventHandler', () => {
     event = {} as jest.Mocked<AccountDeletionRequestedEvent>
     event.payload = {
       userUuid: '1-2-3',
+      regularSubscriptionUuid: '1-2-3',
     } as jest.Mocked<AccountDeletionRequestedEventPayload>
 
     domainEventPublisher = {} as jest.Mocked<DomainEventPublisherInterface>
@@ -42,6 +43,16 @@ describe('AccountDeletionRequestedEventHandler', () => {
     expect(markFilesToBeRemoved.execute).toHaveBeenCalledWith({ userUuid: '1-2-3' })
 
     expect(domainEventPublisher.publish).toHaveBeenCalled()
+  })
+
+  it('should not mark files to be remove for user if user has no regular subscription', async () => {
+    event.payload.regularSubscriptionUuid = undefined
+
+    await createHandler().handle(event)
+
+    expect(markFilesToBeRemoved.execute).not.toHaveBeenCalled()
+
+    expect(domainEventPublisher.publish).not.toHaveBeenCalled()
   })
 
   it('should not publish events if failed to mark files to be removed', async () => {

@@ -33,6 +33,7 @@ export class RemoveFile implements UseCaseInterface {
           filePath: `${dto.userUuid}/${dto.resourceRemoteIdentifier}`,
           fileName: dto.resourceRemoteIdentifier,
           fileByteSize: removedFileSize,
+          regularSubscriptionUuid: dto.regularSubscriptionUuid,
         })
       )
 

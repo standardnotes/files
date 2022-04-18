@@ -29,7 +29,10 @@ export class SharedSubscriptionInvitationCanceledEventHandler implements DomainE
 
     for (const fileRemoved of response.filesRemoved) {
       await this.domainEventPublisher.publish(
-        this.domainEventFactory.createFileRemovedEvent(fileRemoved)
+        this.domainEventFactory.createFileRemovedEvent({
+          regularSubscriptionUuid: event.payload.inviterSubscriptionUuid,
+          ...fileRemoved,
+        })
       )
     }
   }

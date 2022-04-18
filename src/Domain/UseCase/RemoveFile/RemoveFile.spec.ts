@@ -44,6 +44,7 @@ describe('RemoveFile', () => {
     expect(await createUseCase().execute({
       resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
+      regularSubscriptionUuid: '3-4-5',
     })).toEqual({
       success: false,
       message: 'Could not remove resource',
@@ -56,6 +57,7 @@ describe('RemoveFile', () => {
     await createUseCase().execute({
       resourceRemoteIdentifier: '2-3-4',
       userUuid: '1-2-3',
+      regularSubscriptionUuid: '3-4-5',
     })
 
     expect(fileRemover.remove).toHaveBeenCalledWith('1-2-3/2-3-4')
