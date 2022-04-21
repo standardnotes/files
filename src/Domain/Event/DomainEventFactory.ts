@@ -1,3 +1,4 @@
+import { Uuid } from '@standardnotes/common'
 import { FileUploadedEvent, FileRemovedEvent } from '@standardnotes/domain-events'
 import { TimerInterface } from '@standardnotes/time'
 import { inject, injectable } from 'inversify'
@@ -12,7 +13,13 @@ export class DomainEventFactory implements DomainEventFactoryInterface {
   ) {
   }
 
-  createFileRemovedEvent(payload: { userUuid: string, filePath: string, fileName: string, fileByteSize: number }): FileRemovedEvent {
+  createFileRemovedEvent(payload: {
+    userUuid: string,
+    filePath: string,
+    fileName: string,
+    fileByteSize: number
+    regularSubscriptionUuid: Uuid
+  }): FileRemovedEvent {
     return {
       type: 'FILE_REMOVED',
       createdAt: this.timer.getUTCDate(),

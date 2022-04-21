@@ -61,6 +61,7 @@ export class ValetTokenAuthMiddleware extends BaseMiddleware {
       response.locals.permittedOperation = valetTokenData.permittedOperation
       response.locals.uploadBytesUsed = valetTokenData.uploadBytesUsed
       response.locals.uploadBytesLimit = valetTokenData.uploadBytesLimit
+      response.locals.regularSubscriptionUuid = valetTokenData.regularSubscriptionUuid
 
       return next()
     } catch (error) {

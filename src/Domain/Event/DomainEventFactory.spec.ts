@@ -47,6 +47,7 @@ describe('DomainEventFactory', () => {
       fileName: '2-3-4',
       filePath: '1-2-3/2-3-4',
       userUuid: '1-2-3',
+      regularSubscriptionUuid: '1-2-3',
     }))
       .toEqual({
         createdAt: new Date(1),
@@ -61,6 +62,7 @@ describe('DomainEventFactory', () => {
           fileName: '2-3-4',
           filePath: '1-2-3/2-3-4',
           userUuid: '1-2-3',
+          regularSubscriptionUuid: '1-2-3',
         },
         type: 'FILE_REMOVED',
       })

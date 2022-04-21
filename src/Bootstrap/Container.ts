@@ -11,7 +11,15 @@ import { TokenDecoder, TokenDecoderInterface, ValetTokenData } from '@standardno
 import { Timer, TimerInterface } from '@standardnotes/time'
 import { DomainEventFactoryInterface } from '../Domain/Event/DomainEventFactoryInterface'
 import { DomainEventFactory } from '../Domain/Event/DomainEventFactory'
-import { RedisDomainEventPublisher, SNSDomainEventPublisher } from '@standardnotes/domain-events-infra'
+import {
+  RedisDomainEventPublisher,
+  RedisDomainEventSubscriberFactory,
+  RedisEventMessageHandler,
+  SNSDomainEventPublisher,
+  SQSDomainEventSubscriberFactory,
+  SQSEventMessageHandler,
+  SQSNewRelicEventMessageHandler,
+} from '@standardnotes/domain-events-infra'
 import { StreamDownloadFile } from '../Domain/UseCase/StreamDownloadFile/StreamDownloadFile'
 import { FileDownloaderInterface } from '../Domain/Services/FileDownloaderInterface'
 import { S3FileDownloader } from '../Infra/S3/S3FileDownloader'
@@ -28,6 +36,14 @@ import { FileRemoverInterface } from '../Domain/Services/FileRemoverInterface'
 import { S3FileRemover } from '../Infra/S3/S3FileRemover'
 import { FSFileRemover } from '../Infra/FS/FSFileRemover'
 import { RemoveFile } from '../Domain/UseCase/RemoveFile/RemoveFile'
+import {
+  DomainEventHandlerInterface,
+  DomainEventMessageHandlerInterface,
+  DomainEventSubscriberFactoryInterface,
+} from '@standardnotes/domain-events'
+import { MarkFilesToBeRemoved } from '../Domain/UseCase/MarkFilesToBeRemoved/MarkFilesToBeRemoved'
+import { AccountDeletionRequestedEventHandler } from '../Domain/Handler/AccountDeletionRequestedEventHandler'
+import { SharedSubscriptionInvitationCanceledEventHandler } from '../Domain/Handler/SharedSubscriptionInvitationCanceledEventHandler'
 
 export class ContainerConfigLoader {
   async load(): Promise<Container> {
@@ -74,6 +90,20 @@ export class ContainerConfigLoader {
       }))
     }
 
+    if (env.get('SQS_QUEUE_URL', true)) {
+      const sqsConfig: AWS.SQS.Types.ClientConfiguration = {
+        apiVersion: 'latest',
+        region: env.get('SQS_AWS_REGION', true),
+      }
+      if (env.get('SQS_ACCESS_KEY_ID', true) && env.get('SQS_SECRET_ACCESS_KEY', true)) {
+        sqsConfig.credentials = {
+          accessKeyId: env.get('SQS_ACCESS_KEY_ID', true),
+          secretAccessKey: env.get('SQS_SECRET_ACCESS_KEY', true),
+        }
+      }
+      container.bind<AWS.SQS>(TYPES.SQS).toConstantValue(new AWS.SQS(sqsConfig))
+    }
+
     // use cases
     container.bind<UploadFileChunk>(TYPES.UploadFileChunk).to(UploadFileChunk)
     container.bind<StreamDownloadFile>(TYPES.StreamDownloadFile).to(StreamDownloadFile)
@@ -81,6 +111,7 @@ export class ContainerConfigLoader {
     container.bind<FinishUploadSession>(TYPES.FinishUploadSession).to(FinishUploadSession)
     container.bind<GetFileMetadata>(TYPES.GetFileMetadata).to(GetFileMetadata)
     container.bind<RemoveFile>(TYPES.RemoveFile).to(RemoveFile)
+    container.bind<MarkFilesToBeRemoved>(TYPES.MarkFilesToBeRemoved).to(MarkFilesToBeRemoved)
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)
@@ -95,6 +126,7 @@ export class ContainerConfigLoader {
     container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
     container.bind(TYPES.MAX_CHUNK_BYTES).toConstantValue(+env.get('MAX_CHUNK_BYTES'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
+    container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
 
     // services
     container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
@@ -115,6 +147,41 @@ export class ContainerConfigLoader {
       container.bind<RedisDomainEventPublisher>(TYPES.DomainEventPublisher).toConstantValue(
         new RedisDomainEventPublisher(
           container.get(TYPES.Redis),
+          container.get(TYPES.REDIS_EVENTS_CHANNEL)
+        )
+      )
+    }
+
+    // Handlers
+    container.bind<AccountDeletionRequestedEventHandler>(TYPES.AccountDeletionRequestedEventHandler).to(AccountDeletionRequestedEventHandler)
+    container.bind<SharedSubscriptionInvitationCanceledEventHandler>(TYPES.SharedSubscriptionInvitationCanceledEventHandler).to(SharedSubscriptionInvitationCanceledEventHandler)
+
+    const eventHandlers: Map<string, DomainEventHandlerInterface> = new Map([
+      ['ACCOUNT_DELETION_REQUESTED', container.get(TYPES.AccountDeletionRequestedEventHandler)],
+      ['SHARED_SUBSCRIPTION_INVITATION_CANCELED', container.get(TYPES.SharedSubscriptionInvitationCanceledEventHandler)],
+    ])
+
+    if (env.get('SQS_QUEUE_URL', true)) {
+      container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
+        env.get('NEW_RELIC_ENABLED', true) === 'true' ?
+          new SQSNewRelicEventMessageHandler(eventHandlers, container.get(TYPES.Logger)) :
+          new SQSEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+      )
+      container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
+        new SQSDomainEventSubscriberFactory(
+          container.get(TYPES.SQS),
+          container.get(TYPES.SQS_QUEUE_URL),
+          container.get(TYPES.DomainEventMessageHandler)
+        )
+      )
+    } else {
+      container.bind<DomainEventMessageHandlerInterface>(TYPES.DomainEventMessageHandler).toConstantValue(
+        new RedisEventMessageHandler(eventHandlers, container.get(TYPES.Logger))
+      )
+      container.bind<DomainEventSubscriberFactoryInterface>(TYPES.DomainEventSubscriberFactory).toConstantValue(
+        new RedisDomainEventSubscriberFactory(
+          container.get(TYPES.Redis),
+          container.get(TYPES.DomainEventMessageHandler),
           container.get(TYPES.REDIS_EVENTS_CHANNEL)
         )
       )

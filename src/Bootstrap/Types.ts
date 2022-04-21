@@ -4,6 +4,9 @@ const TYPES = {
   Redis: Symbol.for('Redis'),
   S3: Symbol.for('S3'),
   SNS: Symbol.for('SNS'),
+  SQS: Symbol.for('SQS'),
+  SQS_QUEUE_URL: Symbol.for('SQS_QUEUE_URL'),
+  SQS_AWS_REGION: Symbol.for('SQS_AWS_REGION'),
 
   // use cases
   UploadFileChunk: Symbol.for('UploadFileChunk'),
@@ -12,6 +15,7 @@ const TYPES = {
   FinishUploadSession: Symbol.for('FinishUploadSession'),
   GetFileMetadata: Symbol.for('GetFileMetadata'),
   RemoveFile: Symbol.for('RemoveFile'),
+  MarkFilesToBeRemoved: Symbol.for('MarkFilesToBeRemoved'),
 
   // services
   ValetTokenDecoder: Symbol.for('ValetTokenDecoder'),
@@ -38,6 +42,13 @@ const TYPES = {
   REDIS_EVENTS_CHANNEL: Symbol.for('REDIS_EVENTS_CHANNEL'),
   MAX_CHUNK_BYTES: Symbol.for('MAX_CHUNK_BYTES'),
   VERSION: Symbol.for('VERSION'),
+  NEW_RELIC_ENABLED: Symbol.for('NEW_RELIC_ENABLED'),
+
+  // Handlers
+  DomainEventMessageHandler: Symbol.for('DomainEventMessageHandler'),
+  DomainEventSubscriberFactory: Symbol.for('DomainEventSubscriberFactory'),
+  AccountDeletionRequestedEventHandler: Symbol.for('AccountDeletionRequestedEventHandler'),
+  SharedSubscriptionInvitationCanceledEventHandler: Symbol.for('SharedSubscriptionInvitationCanceledEventHandler'),
 }
 
 export default TYPES
