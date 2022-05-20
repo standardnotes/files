@@ -66,11 +66,21 @@ export class ContainerConfigLoader {
 
     container.bind(TYPES.Redis).toConstantValue(redis)
 
-    if (env.get('S3_AWS_REGION', true)) {
-      const s3Client = new AWS.S3({
+    if (env.get('AWS_ACCESS_KEY_ID', true)) {
+      AWS.config.credentials = new AWS.EnvironmentCredentials('AWS')
+    }
+
+    if (env.get('S3_AWS_REGION', true) || env.get('S3_ENDPOINT', true)) {
+      const s3Opts: AWS.S3.Types.ClientConfiguration = {
         apiVersion: 'latest',
-        region: env.get('S3_AWS_REGION', true),
-      })
+      }
+      if (env.get('S3_AWS_REGION', true)) {
+        s3Opts.region = env.get('S3_AWS_REGION', true)
+      }
+      if (env.get('S3_ENDPOINT', true)) {
+        s3Opts.endpoint = new AWS.Endpoint(env.get('S3_ENDPOINT', true))
+      }
+      const s3Client = new AWS.S3(s3Opts)
       container.bind<AWS.S3>(TYPES.S3).toConstantValue(s3Client)
       container.bind<FileDownloaderInterface>(TYPES.FileDownloader).to(S3FileDownloader)
       container.bind<FileUploaderInterface>(TYPES.FileUploader).to(S3FileUploader)
