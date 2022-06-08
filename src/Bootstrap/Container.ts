@@ -87,9 +87,7 @@ export class ContainerConfigLoader {
       container.bind<FileRemoverInterface>(TYPES.FileRemover).to(S3FileRemover)
     } else {
       container.bind<FileDownloaderInterface>(TYPES.FileDownloader).to(FSFileDownloader)
-      container.bind<FileUploaderInterface>(TYPES.FileUploader).toConstantValue(new FSFileUploader(
-        container.get(TYPES.Logger),
-      ))
+      container.bind<FileUploaderInterface>(TYPES.FileUploader).to(FSFileUploader)
       container.bind<FileRemoverInterface>(TYPES.FileRemover).to(FSFileRemover)
     }
 
@@ -137,6 +135,7 @@ export class ContainerConfigLoader {
     container.bind(TYPES.MAX_CHUNK_BYTES).toConstantValue(+env.get('MAX_CHUNK_BYTES'))
     container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
     container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
+    container.bind(TYPES.FILE_UPLOAD_PATH).toConstantValue(env.get('FILE_UPLOAD_PATH', true) ?? `${__dirname}/../../uploads`)
 
     // services
     container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))
