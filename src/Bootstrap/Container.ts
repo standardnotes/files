@@ -55,7 +55,20 @@ export class ContainerConfigLoader {
     const logger = this.createLogger({ env })
     container.bind<winston.Logger>(TYPES.Logger).toConstantValue(logger)
 
-    const redisUrl = env.get('REDIS_URL')
+    // env vars
+    container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME', true))
+    container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION', true))
+    container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
+    container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN', true))
+    container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION', true))
+    container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
+    container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
+    container.bind(TYPES.MAX_CHUNK_BYTES).toConstantValue(+env.get('MAX_CHUNK_BYTES'))
+    container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
+    container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
+    container.bind(TYPES.FILE_UPLOAD_PATH).toConstantValue(env.get('FILE_UPLOAD_PATH', true) ?? `${__dirname}/../../uploads`)
+
+    const redisUrl = container.get(TYPES.REDIS_URL) as string
     const isRedisInClusterMode = redisUrl.indexOf(',') > 0
     let redis
     if (isRedisInClusterMode) {
@@ -66,11 +79,21 @@ export class ContainerConfigLoader {
 
     container.bind(TYPES.Redis).toConstantValue(redis)
 
-    if (env.get('S3_AWS_REGION', true)) {
-      const s3Client = new AWS.S3({
+    if (env.get('AWS_ACCESS_KEY_ID', true)) {
+      AWS.config.credentials = new AWS.EnvironmentCredentials('AWS')
+    }
+
+    if (env.get('S3_AWS_REGION', true) || env.get('S3_ENDPOINT', true)) {
+      const s3Opts: AWS.S3.Types.ClientConfiguration = {
         apiVersion: 'latest',
-        region: env.get('S3_AWS_REGION', true),
-      })
+      }
+      if (env.get('S3_AWS_REGION', true)) {
+        s3Opts.region = env.get('S3_AWS_REGION', true)
+      }
+      if (env.get('S3_ENDPOINT', true)) {
+        s3Opts.endpoint = new AWS.Endpoint(env.get('S3_ENDPOINT', true))
+      }
+      const s3Client = new AWS.S3(s3Opts)
       container.bind<AWS.S3>(TYPES.S3).toConstantValue(s3Client)
       container.bind<FileDownloaderInterface>(TYPES.FileDownloader).to(S3FileDownloader)
       container.bind<FileUploaderInterface>(TYPES.FileUploader).to(S3FileUploader)
@@ -78,7 +101,8 @@ export class ContainerConfigLoader {
     } else {
       container.bind<FileDownloaderInterface>(TYPES.FileDownloader).to(FSFileDownloader)
       container.bind<FileUploaderInterface>(TYPES.FileUploader).toConstantValue(new FSFileUploader(
-        container.get(TYPES.Logger),
+        container.get(TYPES.FILE_UPLOAD_PATH),
+        container.get(TYPES.Logger)
       ))
       container.bind<FileRemoverInterface>(TYPES.FileRemover).to(FSFileRemover)
     }
@@ -115,18 +139,6 @@ export class ContainerConfigLoader {
 
     // middleware
     container.bind<ValetTokenAuthMiddleware>(TYPES.ValetTokenAuthMiddleware).to(ValetTokenAuthMiddleware)
-
-    // env vars
-    container.bind(TYPES.S3_BUCKET_NAME).toConstantValue(env.get('S3_BUCKET_NAME', true))
-    container.bind(TYPES.S3_AWS_REGION).toConstantValue(env.get('S3_AWS_REGION', true))
-    container.bind(TYPES.VALET_TOKEN_SECRET).toConstantValue(env.get('VALET_TOKEN_SECRET'))
-    container.bind(TYPES.SNS_TOPIC_ARN).toConstantValue(env.get('SNS_TOPIC_ARN', true))
-    container.bind(TYPES.SNS_AWS_REGION).toConstantValue(env.get('SNS_AWS_REGION', true))
-    container.bind(TYPES.REDIS_URL).toConstantValue(env.get('REDIS_URL'))
-    container.bind(TYPES.REDIS_EVENTS_CHANNEL).toConstantValue(env.get('REDIS_EVENTS_CHANNEL'))
-    container.bind(TYPES.MAX_CHUNK_BYTES).toConstantValue(+env.get('MAX_CHUNK_BYTES'))
-    container.bind(TYPES.VERSION).toConstantValue(env.get('VERSION'))
-    container.bind(TYPES.SQS_QUEUE_URL).toConstantValue(env.get('SQS_QUEUE_URL', true))
 
     // services
     container.bind<TokenDecoderInterface<ValetTokenData>>(TYPES.ValetTokenDecoder).toConstantValue(new TokenDecoder<ValetTokenData>(container.get(TYPES.VALET_TOKEN_SECRET)))

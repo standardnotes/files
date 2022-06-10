@@ -1,16 +1,22 @@
 import { Readable } from 'stream'
 import { createReadStream, promises } from 'fs'
+import { inject, injectable } from 'inversify'
 
 import { FileDownloaderInterface } from '../../Domain/Services/FileDownloaderInterface'
-import { injectable } from 'inversify'
+import TYPES from '../../Bootstrap/Types'
 
 @injectable()
 export class FSFileDownloader implements FileDownloaderInterface {
+  constructor(
+    @inject(TYPES.FILE_UPLOAD_PATH) private fileUploadPath: string
+  ) {
+  }
+
   async getFileSize(filePath: string): Promise<number> {
-    return (await promises.stat(`${__dirname}/tmp/${filePath}`)).size
+    return (await promises.stat(`${this.fileUploadPath}/${filePath}`)).size
   }
 
   createDownloadStream(filePath: string, startRange: number, endRange: number): Readable {
-    return createReadStream(`${__dirname}/tmp/${filePath}`, { start: startRange, end: endRange })
+    return createReadStream(`${this.fileUploadPath}/${filePath}`, { start: startRange, end: endRange })
   }
 }

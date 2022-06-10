@@ -12,6 +12,7 @@ export class FSFileUploader implements FileUploaderInterface {
   private inMemoryChunks: Map<string, Map<number, Uint8Array>>
 
   constructor(
+    @inject(TYPES.FILE_UPLOAD_PATH) private fileUploadPath: string,
     @inject(TYPES.Logger) private logger: Logger,
   ) {
     this.inMemoryChunks = new Map<string, Map<number, Uint8Array>>()
@@ -41,14 +42,14 @@ export class FSFileUploader implements FileUploaderInterface {
 
     const orderedKeys = [...fileChunks.keys()].sort((a, b) => a - b)
     for (const orderedKey of orderedKeys) {
-      await promises.appendFile(`${__dirname}/tmp/${filePath}`, fileChunks.get(orderedKey) as Uint8Array)
+      await promises.appendFile(`${this.fileUploadPath}/${filePath}`, fileChunks.get(orderedKey) as Uint8Array)
     }
 
     this.inMemoryChunks.delete(uploadId)
   }
 
   async createUploadSession(filePath: string): Promise<string> {
-    const fullPath = `${__dirname}/tmp/${filePath}`
+    const fullPath = `${this.fileUploadPath}/${filePath}`
 
     await promises.mkdir(dirname(fullPath), { recursive: true })
 

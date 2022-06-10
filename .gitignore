@@ -15,3 +15,5 @@ data
 
 # NewRelic
 newrelic_agent.log
+uploads/*
+!uploads/.gitkeep
