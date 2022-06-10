@@ -87,7 +87,10 @@ export class ContainerConfigLoader {
       container.bind<FileRemoverInterface>(TYPES.FileRemover).to(S3FileRemover)
     } else {
       container.bind<FileDownloaderInterface>(TYPES.FileDownloader).to(FSFileDownloader)
-      container.bind<FileUploaderInterface>(TYPES.FileUploader).to(FSFileUploader)
+      container.bind<FileUploaderInterface>(TYPES.FileUploader).toConstantValue(new FSFileUploader(
+        container.get(TYPES.FILE_UPLOAD_PATH),
+        container.get(TYPES.Logger)
+      ))
       container.bind<FileRemoverInterface>(TYPES.FileRemover).to(FSFileRemover)
     }
 
